@@ -25,10 +25,11 @@ flowchart TD
         SLICER["ASTSlicer (Method Boundaries)"]
     end
 
-    subgraph ENGINE ["Delta-RAG Gatekeeper & Vector Engine"]
+    subgraph ENGINE ["Delta-RAG Gatekeeper & Vector Store Engine"]
         VEC["120-D AST Vectorizer"]
-        DATASET["master dataset.json (3,179 Bug-Fix Pairs)"]
-        COSINE["Cosine Similarity Lookup (Local Vector Index)"]
+        QDRANT["Qdrant Cloud Vector Database (delta_rag_vectors)"]
+        DATASET["Historical Dataset (3,179 Bug-Fix Pairs)"]
+        COSINE["Qdrant Cosine Similarity Vector Lookup (Top-K Retrieval)"]
         GATE{"Confidence >= 0.80?"}
     end
 

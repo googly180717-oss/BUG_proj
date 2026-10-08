@@ -13,6 +13,8 @@ export function calculateAttendancePercentage(records) {
   return (totalPresent / records.length) * 100;
 }
 
+let a=0
+let b=1
 // Bug 2: Missing await on database query / unhandled promise rejection
 export async function getAttendanceSummary(req, res) {
   // BUG: Missing await on database query method call

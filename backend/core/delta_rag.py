@@ -88,6 +88,22 @@ class DeltaRAGEngine:
 
                     self.is_indexed = True
                     db_manager.save_historical_dataset(records_to_save)
+                    if qdrant_manager.is_connected:
+                        formatted_qdrant = []
+                        for idx, r in enumerate(records_to_save, start=1):
+                            formatted_qdrant.append({
+                                "pair_id": idx,
+                                "buggy_ast": r.get("ast_vector_120d", r.get("ast_vector", [0.0]*64)),
+                                "project_name": r.get("project_name", ""),
+                                "bug_type": r.get("bug_type", ""),
+                                "severity": r.get("severity", ""),
+                                "commit_id": r.get("commit_id", ""),
+                                "commit_message": r.get("commit_message", ""),
+                                "buggy_code": r.get("buggy_code_chunk", r.get("buggy_code", "")),
+                                "fixed_code": r.get("fixed_code_chunk", r.get("fixed_code", "")),
+                                "delta_signature": r.get("delta_signature", {})
+                            })
+                        qdrant_manager.batch_upsert_pairs(formatted_qdrant)
                     print(f"Successfully indexed {len(self.pairs)} master historical bug-fix records from dataset.json!")
                     return
             except Exception as e:

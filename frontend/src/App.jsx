@@ -16,6 +16,9 @@ import {
   Wrench,
   FileCheck2
 } from 'lucide-react';
+let a=0
+let b=0
+
 
 export default function App() {
   const [appState, setAppState] = useState('idle'); // 'idle' | 'scanning' | 'results'
@@ -31,6 +34,9 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
+    //Thsis is done
+    let a=fetchSystemStatus 
+
     fetchSystemStatus();
   }, []);
 
