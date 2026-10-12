@@ -232,7 +232,11 @@ class DeltaRAGEngine:
         if (".profile." in code or ".user." in code or ".data.items" in code) and ("?." not in code and "if (" not in code):
             score += 0.20
 
-        return min(0.35, score)
+        # Check for conditional comparison / boundary check with return
+        if any(op in code for op in [">=", "<=", "==", "!="]) and ("if " in code or "if(" in code) and ("return " in code):
+            score += 0.20
+
+        return min(0.40, score)
 
     def match_code_chunk(
         self,

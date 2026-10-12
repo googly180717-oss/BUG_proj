@@ -178,12 +178,22 @@ class QdrantVectorStoreManager:
             else:
                 query_vector = query_vector[:self.vector_dim]
 
-            search_result = self.client.search(
-                collection_name=self.collection_name,
-                query_vector=[float(v) for v in query_vector],
-                limit=limit,
-                score_threshold=score_threshold
-            )
+            search_result = []
+            if hasattr(self.client, "query_points"):
+                resp = self.client.query_points(
+                    collection_name=self.collection_name,
+                    query=[float(v) for v in query_vector],
+                    limit=limit,
+                    score_threshold=score_threshold
+                )
+                search_result = getattr(resp, "points", [])
+            elif hasattr(self.client, "search"):
+                search_result = self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=[float(v) for v in query_vector],
+                    limit=limit,
+                    score_threshold=score_threshold
+                )
 
             results = []
             for hit in search_result:

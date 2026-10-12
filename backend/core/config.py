@@ -8,9 +8,9 @@ ENV_PATH = BASE_DIR / ".env"
 
 # Automatically load environment variables from .env file
 if ENV_PATH.exists():
-    load_dotenv(ENV_PATH)
+    load_dotenv(ENV_PATH, override=True)
 else:
-    load_dotenv()
+    load_dotenv(override=True)
 
 CSV_PATH = BASE_DIR / "binary_bug_detection_dataset.csv"
 
