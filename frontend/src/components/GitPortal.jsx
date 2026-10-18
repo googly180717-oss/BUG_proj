@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GitBranch, Upload, Code2, Zap, AlertCircle, ChevronDown } from 'lucide-react';
+import { GitBranch, Upload, Code2, ArrowRight, AlertCircle, ChevronDown } from 'lucide-react';
 import DirectCodeModal from './DirectCodeModal';
 
 const SCAN_MODES = [
@@ -9,13 +9,13 @@ const SCAN_MODES = [
 ];
 
 const THRESHOLD_OPTIONS = [
-  { value: 0.30, label: '0.30 — Sensitive (more results)' },
-  { value: 0.50, label: '0.50 — Balanced (recommended)' },
-  { value: 0.70, label: '0.70 — Strict (fewer results)' },
-  { value: 0.80, label: '0.80 — High Confidence' },
+  { value: 0.30, label: '0.30 — Sensitive (broader matching)' },
+  { value: 0.50, label: '0.50 — Balanced (recommended standard)' },
+  { value: 0.70, label: '0.70 — Strict (high precision)' },
+  { value: 0.80, label: '0.80 — High Confidence only' },
 ];
 
-export default function GitPortal({ onStartScan, isScanning }) {
+export default function GitPortal({ onStartScan, isScanning, theme }) {
   const [mode, setMode] = useState('git');
   const [gitUrl, setGitUrl] = useState('');
   const [zipFile, setZipFile] = useState(null);
@@ -37,10 +37,10 @@ export default function GitPortal({ onStartScan, isScanning }) {
 
     if (mode === 'git') {
       if (!gitUrl.trim()) { setError('Please enter a GitHub repository URL.'); return; }
-      if (!gitUrl.startsWith('http')) { setError('Please enter a valid URL starting with http.'); return; }
+      if (!gitUrl.startsWith('http')) { setError('Please enter a valid URL starting with http:// or https://'); return; }
       onStartScan({ type: 'git', gitUrl: gitUrl.trim(), threshold });
     } else if (mode === 'zip') {
-      if (!zipFile) { setError('Please select a ZIP file.'); return; }
+      if (!zipFile) { setError('Please select a ZIP file archive.'); return; }
       onStartScan({ type: 'zip', zipFile, threshold });
     }
   };
@@ -52,10 +52,10 @@ export default function GitPortal({ onStartScan, isScanning }) {
   return (
     <>
       <div className="max-w-2xl mx-auto">
-        <div className="ui-card overflow-hidden border border-[#1f293d] bg-[#111827]">
+        <div className="ui-card overflow-hidden">
           
           {/* Mode Tabs */}
-          <div className="flex border-b border-[#1f293d] bg-[#0b0f19]">
+          <div className="flex border-b border-[var(--border-subtle)] bg-[var(--bg-subtle)]">
             {SCAN_MODES.map((m) => {
               const Icon = m.icon;
               const isActive = mode === m.id;
@@ -64,10 +64,10 @@ export default function GitPortal({ onStartScan, isScanning }) {
                   key={m.id}
                   type="button"
                   onClick={() => { setMode(m.id); setError(''); if (m.id === 'direct') setIsDirectModalOpen(true); }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-xs font-medium transition-colors border-b-2 ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-xs font-medium transition-all border-b-2 cursor-pointer ${
                     isActive
-                      ? 'border-blue-500 text-white bg-[#111827]'
-                      : 'border-transparent text-slate-400 hover:text-white'
+                      ? 'border-[var(--text-primary)] text-[var(--text-primary)] bg-[var(--bg-surface)]'
+                      : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -83,20 +83,20 @@ export default function GitPortal({ onStartScan, isScanning }) {
             {/* Git URL Input */}
             {mode === 'git' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white">
-                  GitHub Repository URL <span className="text-red-400">*</span>
+                <label className="text-xs font-medium text-[var(--text-primary)]">
+                  GitHub Repository URL <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="url"
                   value={gitUrl}
                   onChange={e => setGitUrl(e.target.value)}
                   placeholder="https://github.com/owner/repository"
-                  className="w-full px-3.5 py-2.5 bg-[#0b0f19] border border-[#1f293d] rounded-md text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-md text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)] transition-colors"
                 />
                 {/* Sample Repos */}
                 {suggestions.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span className="text-[11px] text-slate-400">Sample Repos:</span>
+                    <span className="text-[11px] text-[var(--text-muted)]">Verified Benchmarks:</span>
                     {suggestions.slice(0, 3).map((s, i) => {
                       const urlStr = typeof s === 'string' ? s : (s?.url || s?.name || '');
                       const labelStr = typeof s === 'string' 
@@ -107,7 +107,7 @@ export default function GitPortal({ onStartScan, isScanning }) {
                           key={i}
                           type="button"
                           onClick={() => setGitUrl(urlStr)}
-                          className="text-[11px] px-2 py-0.5 rounded bg-[#1f293d] hover:bg-slate-700 text-slate-200 border border-slate-700 transition font-mono truncate max-w-[200px]"
+                          className="text-[11px] px-2 py-0.5 rounded bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] transition font-mono truncate max-w-[200px] cursor-pointer"
                         >
                           {labelStr}
                         </button>
@@ -121,16 +121,16 @@ export default function GitPortal({ onStartScan, isScanning }) {
             {/* ZIP Upload */}
             {mode === 'zip' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white">
-                  ZIP Archive <span className="text-red-400">*</span>
+                <label className="text-xs font-medium text-[var(--text-primary)]">
+                  ZIP Archive <span className="text-red-500">*</span>
                 </label>
-                <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-[#1f293d] rounded-md cursor-pointer bg-[#0b0f19] hover:border-blue-500 transition-colors">
-                  <div className="flex flex-col items-center gap-1 text-slate-400">
-                    <Upload className="w-5 h-5 text-slate-300" />
-                    <span className="text-xs text-white">
-                      {zipFile ? zipFile.name : 'Select or drop ZIP file here'}
+                <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-[var(--border-subtle)] rounded-md cursor-pointer bg-[var(--bg-subtle)] hover:border-[var(--border-medium)] transition-colors">
+                  <div className="flex flex-col items-center gap-1 text-[var(--text-muted)]">
+                    <Upload className="w-5 h-5 text-[var(--text-secondary)]" />
+                    <span className="text-xs text-[var(--text-primary)] font-medium">
+                      {zipFile ? zipFile.name : 'Select or drop ZIP file archive here'}
                     </span>
-                    <span className="text-[11px] text-slate-400">.zip files containing source code</span>
+                    <span className="text-[11px] text-[var(--text-muted)]">Upload .zip archive containing source code</span>
                   </div>
                   <input
                     type="file"
@@ -144,15 +144,15 @@ export default function GitPortal({ onStartScan, isScanning }) {
 
             {/* Direct Code mode */}
             {mode === 'direct' && (
-              <div className="flex flex-col items-center justify-center py-6 text-slate-400 gap-3 bg-[#0b0f19] rounded-md border border-[#1f293d]">
-                <Code2 className="w-7 h-7 text-blue-400" />
-                <p className="text-xs text-white">Analyze JavaScript or TypeScript code snippets.</p>
+              <div className="flex flex-col items-center justify-center py-6 text-[var(--text-muted)] gap-3 bg-[var(--bg-subtle)] rounded-md border border-[var(--border-subtle)]">
+                <Code2 className="w-7 h-7 text-[var(--text-secondary)]" />
+                <p className="text-xs text-[var(--text-primary)]">Inspect and repair standalone JavaScript or TypeScript functions.</p>
                 <button
                   type="button"
                   onClick={() => setIsDirectModalOpen(true)}
-                  className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
+                  className="px-4 py-2 rounded-md bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] hover:bg-[var(--accent-btn-hover)] text-xs font-medium transition-all shadow-xs cursor-pointer"
                 >
-                  Open Code Editor
+                  Open Code Inspector
                 </button>
               </div>
             )}
@@ -160,42 +160,42 @@ export default function GitPortal({ onStartScan, isScanning }) {
             {/* Threshold Selector */}
             {mode !== 'direct' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-white">
-                  Detection Sensitivity
+                <label className="text-xs font-medium text-[var(--text-primary)]">
+                  Defect Detection Sensitivity
                 </label>
                 <div className="relative">
                   <select
                     value={threshold}
                     onChange={e => setThreshold(parseFloat(e.target.value))}
-                    className="w-full appearance-none px-3.5 py-2.5 bg-[#0b0f19] border border-[#1f293d] rounded-md text-xs text-white focus:outline-none focus:border-blue-500 transition-colors pr-8 cursor-pointer"
+                    className="w-full appearance-none px-3.5 py-2.5 bg-[var(--bg-subtle)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--border-strong)] transition-colors pr-8 cursor-pointer"
                   >
                     {THRESHOLD_OPTIONS.map(opt => (
-                      <option key={opt.value} value={opt.value} className="bg-[#111827] text-white">{opt.label}</option>
+                      <option key={opt.value} value={opt.value} className="bg-[var(--bg-surface)] text-[var(--text-primary)]">{opt.label}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none" />
                 </div>
               </div>
             )}
 
-            {/* Error */}
+            {/* Error Message */}
             {error && (
-              <div className="flex items-center gap-2 text-xs text-red-400 bg-red-950/40 border border-red-800/60 px-3 py-2 rounded-md">
+              <div className="flex items-center gap-2 text-xs text-red-500 bg-red-500/10 border border-red-500/30 px-3 py-2 rounded-md">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            {/* Submit */}
+            {/* Submit Button */}
             {mode !== 'direct' && (
               <div className="flex justify-end pt-1">
                 <button
                   type="submit"
                   disabled={isScanning}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-medium transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] hover:bg-[var(--accent-btn-hover)] disabled:opacity-50 text-xs font-semibold shadow-xs transition-all cursor-pointer"
                 >
-                  <Zap className="w-4 h-4" />
-                  Analyze Repository
+                  <span>Analyze Repository</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -208,6 +208,7 @@ export default function GitPortal({ onStartScan, isScanning }) {
         isOpen={isDirectModalOpen}
         onClose={() => { setIsDirectModalOpen(false); setMode('git'); }}
         onRunDirectScan={handleDirectScan}
+        theme={theme}
       />
     </>
   );

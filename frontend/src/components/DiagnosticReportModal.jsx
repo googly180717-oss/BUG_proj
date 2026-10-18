@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Copy, Check, Download, Share2, FileText, CheckCircle2 } from 'lucide-react';
+import { X, Copy, Check, Download, FileText } from 'lucide-react';
 
 export default function DiagnosticReportModal({ isOpen, onClose, scanResult }) {
   const [copied, setCopied] = useState(false);
@@ -49,51 +49,51 @@ export default function DiagnosticReportModal({ isOpen, onClose, scanResult }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-2xl ui-card border border-slate-800/90 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="relative w-full max-w-2xl ui-card shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         {/* Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center justify-between bg-[#070c17]/90">
+        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface)]">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-cyan-950/60 text-cyan-400 border border-cyan-800/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-              <FileText className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
+              <FileText className="w-4 h-4 text-[var(--text-secondary)]" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Diagnostic Report Export</h3>
-              <p className="text-xs text-slate-400">Markdown summary of detected defects and suggested repairs</p>
+              <h3 className="text-sm font-bold text-[var(--text-primary)]">Diagnostic Report Export</h3>
+              <p className="text-xs text-[var(--text-muted)]">Markdown summary of detected defects and suggested repairs</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all"
+            className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] transition-all cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1 bg-[#090e1a]/95">
-          <div className="bg-[#030712] p-4 rounded-xl border border-slate-800/80 font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed shadow-inner">
+        <div className="p-5 overflow-y-auto flex-1 bg-[var(--bg-surface-elevated)]">
+          <div className="bg-[var(--bg-subtle)] p-4 rounded-lg border border-[var(--border-subtle)] font-mono text-xs text-[var(--text-secondary)] whitespace-pre-wrap max-h-96 overflow-y-auto leading-relaxed shadow-inner">
             {reportText}
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800/80 bg-[#070c17]/90 flex items-center justify-between">
-          <span className="text-xs text-slate-400">Export report for review or pull requests</span>
-          <div className="flex items-center space-x-2.5">
+        <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] flex items-center justify-between">
+          <span className="text-xs text-[var(--text-muted)]">Export report for engineering review</span>
+          <div className="flex items-center space-x-2">
             <button
               onClick={handleCopy}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs font-semibold border border-slate-700/80 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-all cursor-pointer"
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-slate-400" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
               <span>{copied ? "Copied!" : "Copy"}</span>
             </button>
             <button
               onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[var(--accent-btn-bg)] hover:bg-[var(--accent-btn-hover)] text-[var(--accent-btn-text)] text-xs font-semibold shadow-xs transition-all cursor-pointer"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-3.5 h-3.5" />
               <span>Download .md</span>
             </button>
           </div>

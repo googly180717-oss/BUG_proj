@@ -20,29 +20,29 @@ export default function ScanProgressLogger({ currentStep = 1, logs = [] }) {
 
   return (
     <div className="w-full max-w-3xl mx-auto my-8">
-      <div className="ui-card p-6 border border-[#1f293d] bg-[#111827]">
+      <div className="ui-card p-6">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-[#1f293d]">
+        <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
           <div className="flex items-center space-x-3">
-            <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+            <Loader2 className="w-5 h-5 text-[var(--text-primary)] animate-spin" />
             <div>
-              <h3 className="text-sm sm:text-base font-semibold text-white">
-                Analyzing Repository — Step {currentStep} of 11
+              <h3 className="text-sm sm:text-base font-semibold text-[var(--text-primary)]">
+                Analyzing Codebase — Step {currentStep} of 11
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                 {PIPELINE_STEPS[currentStep - 1]?.desc || "Processing..."}
               </p>
             </div>
           </div>
-          <span className="font-mono text-sm font-semibold text-blue-400">{percent}%</span>
+          <span className="font-mono text-sm font-semibold text-[var(--text-primary)]">{percent}%</span>
         </div>
 
         {/* Progress Bar */}
         <div className="mt-4">
-          <div className="w-full bg-[#0b0f19] rounded-full h-2 overflow-hidden border border-[#1f293d]">
+          <div className="w-full bg-[var(--bg-subtle)] rounded-full h-2 overflow-hidden border border-[var(--border-subtle)]">
             <div
-              className="bg-blue-600 h-full transition-all duration-300 rounded-full"
+              className="bg-[var(--accent-btn-bg)] h-full transition-all duration-300 rounded-full"
               style={{ width: `${percent}%` }}
             />
           </div>
@@ -57,34 +57,34 @@ export default function ScanProgressLogger({ currentStep = 1, logs = [] }) {
             return (
               <div
                 key={s.step}
-                className={`p-2.5 rounded-md border transition-colors ${
+                className={`p-2.5 rounded-md border transition-all ${
                   isCurrent
-                    ? 'bg-blue-950/40 border-blue-600 text-blue-200'
+                    ? 'bg-[var(--bg-surface-elevated)] border-[var(--border-strong)] text-[var(--text-primary)] shadow-xs'
                     : isDone
-                    ? 'bg-[#0b0f19] border-[#1f293d] text-slate-300'
-                    : 'bg-[#0b0f19]/50 border-[#1f293d]/50 text-slate-500'
+                    ? 'bg-[var(--bg-subtle)] border-[var(--border-subtle)] text-[var(--text-secondary)]'
+                    : 'bg-[var(--bg-subtle)]/40 border-[var(--border-subtle)]/40 text-[var(--text-muted)]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] text-slate-400">Step {s.step}</span>
+                  <span className="font-mono text-[10px] text-[var(--text-muted)]">Step {s.step}</span>
                   {isDone ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   ) : isCurrent ? (
-                    <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 text-[var(--text-primary)] animate-spin" />
                   ) : (
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--border-medium)]" />
                   )}
                 </div>
-                <div className="font-medium text-white truncate mt-1">{s.title}</div>
+                <div className="font-medium text-[var(--text-primary)] truncate mt-1">{s.title}</div>
               </div>
             );
           })}
         </div>
 
         {/* Terminal Log */}
-        <div className="mt-5 bg-[#0b0f19] rounded-md p-3.5 border border-[#1f293d] font-mono text-xs text-slate-300 max-h-32 overflow-y-auto space-y-1">
-          <div className="text-slate-500">// Execution log:</div>
-          <div className="text-blue-400">
+        <div className="mt-5 bg-[var(--bg-subtle)] rounded-md p-3.5 border border-[var(--border-subtle)] font-mono text-xs text-[var(--text-secondary)] max-h-32 overflow-y-auto space-y-1">
+          <div className="text-[var(--text-muted)]">// Execution audit ledger:</div>
+          <div className="text-[var(--text-primary)] font-medium">
             [Step {currentStep}/11] {PIPELINE_STEPS[currentStep - 1]?.desc}
           </div>
         </div>

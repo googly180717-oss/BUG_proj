@@ -16,11 +16,11 @@ import {
   Wrench,
   FileCheck2
 } from 'lucide-react';
-let a=0
-let b=0
-
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('bugidentifier_theme') || 'dark';
+  });
   const [appState, setAppState] = useState('idle'); // 'idle' | 'scanning' | 'results'
   const [activeResultsTab, setActiveResultsTab] = useState('summary'); // 'summary' | 'vulnerabilities' | 'observability'
   const [currentStep, setCurrentStep] = useState(1);
@@ -29,14 +29,17 @@ export default function App() {
   const [systemStatus, setSystemStatus] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success'); // 'success' | 'error'
+  const [selectedVulnIndex, setSelectedVulnIndex] = useState(0);
 
   // Modals
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
-    //Thsis is done
-    let a=fetchSystemStatus 
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('bugidentifier_theme', theme);
+  }, [theme]);
 
+  useEffect(() => {
     fetchSystemStatus();
   }, []);
 
@@ -123,8 +126,6 @@ export default function App() {
     }
   };
 
-  const [selectedVulnIndex, setSelectedVulnIndex] = useState(0);
-
   const handleNavigateToDiff = (targetIdx = 0) => {
     if (typeof targetIdx === 'number') {
       setSelectedVulnIndex(targetIdx);
@@ -148,26 +149,30 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0f19] text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-[var(--bg-canvas)] text-[var(--text-primary)] flex flex-col font-sans transition-colors duration-200">
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-medium border ${
+        <div className={`fixed bottom-5 right-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-md text-xs font-medium border shadow-lg ${
           toastType === 'error'
-            ? 'bg-red-950 border-red-800 text-red-200'
-            : 'bg-emerald-950 border-emerald-800 text-emerald-200'
+            ? 'bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-400'
+            : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 dark:text-emerald-400'
         }`}>
           {toastType === 'error' ? (
-            <AlertCircle className="w-4 h-4 text-red-400" />
+            <AlertCircle className="w-4 h-4 text-red-500" />
           ) : (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           )}
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Top Navigation */}
-      <Navbar systemStatus={systemStatus} />
+      <Navbar 
+        systemStatus={systemStatus} 
+        theme={theme}
+        onThemeChange={setTheme}
+      />
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -176,48 +181,49 @@ export default function App() {
         {appState === 'idle' && (
           <div className="space-y-6">
             <div className="text-center my-6 space-y-2 max-w-xl mx-auto">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)]">
                 Automated Bug Detection &amp; Program Repair
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Scan repositories or code snippets to find logic bugs, view side-by-side diffs, and apply verified fixes.
+              <p className="text-xs sm:text-sm text-[var(--text-secondary)]">
+                Scan repositories or code snippets to detect structural and logical defects, inspect side-by-side AST diffs, and apply verified fixes.
               </p>
             </div>
 
             <GitPortal
               onStartScan={handleStartScan}
               isScanning={false}
+              theme={theme}
             />
 
             {/* Feature Highlights */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto mt-8 text-xs">
-              <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-                <div className="flex items-center space-x-2 text-white font-semibold mb-1.5">
-                  <Code2 className="w-4 h-4 text-blue-400" />
+              <div className="ui-card p-4">
+                <div className="flex items-center space-x-2 text-[var(--text-primary)] font-semibold mb-1.5">
+                  <Code2 className="w-4 h-4 text-[var(--text-secondary)]" />
                   <span>AST Code Analysis</span>
                 </div>
-                <p className="text-slate-400 leading-relaxed">
-                  Parses source code into syntax trees to identify anti-patterns and potential failure points.
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  Parses source code into syntax trees to identify anti-patterns, boundary issues, and potential failure points.
                 </p>
               </div>
 
-              <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-                <div className="flex items-center space-x-2 text-white font-semibold mb-1.5">
-                  <GitBranch className="w-4 h-4 text-blue-400" />
+              <div className="ui-card p-4">
+                <div className="flex items-center space-x-2 text-[var(--text-primary)] font-semibold mb-1.5">
+                  <GitBranch className="w-4 h-4 text-[var(--text-secondary)]" />
                   <span>Pattern Matching</span>
                 </div>
-                <p className="text-slate-400 leading-relaxed">
-                  Compares suspicious functions against verified bug-fix pairs to produce accurate repairs.
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  Compares suspicious functions against verified historical bug-fix twins to produce high-fidelity repairs.
                 </p>
               </div>
 
-              <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-                <div className="flex items-center space-x-2 text-white font-semibold mb-1.5">
-                  <Wrench className="w-4 h-4 text-blue-400" />
+              <div className="ui-card p-4">
+                <div className="flex items-center space-x-2 text-[var(--text-primary)] font-semibold mb-1.5">
+                  <Wrench className="w-4 h-4 text-[var(--text-secondary)]" />
                   <span>Instant Patching</span>
                 </div>
-                <p className="text-slate-400 leading-relaxed">
-                  Review side-by-side diffs in Monaco editor and apply automated fixes with a single click.
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  Review side-by-side diffs in Monaco editor and apply automated fixes to your branch with a single click.
                 </p>
               </div>
             </div>
@@ -237,14 +243,14 @@ export default function App() {
           <div className="space-y-4">
             
             {/* Top Bar with View Switcher */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ui-card p-3 border border-[#1f293d] bg-[#111827]">
-              <div className="flex items-center space-x-1.5 bg-[#0b0f19] p-1 rounded-md border border-[#1f293d] text-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 ui-card p-3">
+              <div className="flex items-center space-x-1.5 bg-[var(--bg-subtle)] p-1 rounded-md border border-[var(--border-subtle)] text-xs">
                 <button
                   onClick={() => setActiveResultsTab('summary')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
                     activeResultsTab === 'summary'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] shadow-xs'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <FileCheck2 className="w-3.5 h-3.5" />
@@ -253,10 +259,10 @@ export default function App() {
 
                 <button
                   onClick={() => setActiveResultsTab('vulnerabilities')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
                     activeResultsTab === 'vulnerabilities'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] shadow-xs'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <Code2 className="w-3.5 h-3.5" />
@@ -265,10 +271,10 @@ export default function App() {
 
                 <button
                   onClick={() => setActiveResultsTab('observability')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-medium transition-all cursor-pointer ${
                     activeResultsTab === 'observability'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] shadow-xs'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
                   <Activity className="w-3.5 h-3.5" />
@@ -278,9 +284,9 @@ export default function App() {
 
               <button
                 onClick={() => setAppState('idle')}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1f293d] hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-colors cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className="w-3.5 h-3.5 text-[var(--text-muted)]" />
                 <span>New Scan</span>
               </button>
             </div>
@@ -299,6 +305,7 @@ export default function App() {
               <VulnerabilityExplorer
                 scanResult={scanResult}
                 initialIndex={selectedVulnIndex}
+                theme={theme}
                 onApplyPatch={handleApplyPatch}
                 onShareReport={() => setIsReportModalOpen(true)}
               />

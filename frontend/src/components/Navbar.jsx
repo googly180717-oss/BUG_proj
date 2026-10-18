@@ -1,52 +1,84 @@
 import React from 'react';
-import { Bug, Activity, Shield, Wifi, WifiOff } from 'lucide-react';
+import { Bug, Activity, Shield, Wifi, WifiOff, Moon, Sparkles } from 'lucide-react';
 
-export default function Navbar({ systemStatus }) {
+export default function Navbar({ systemStatus, theme, onThemeChange }) {
   const isOnline = systemStatus?.status === 'online';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#1f293d] bg-[#0b0f19]">
+    <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--bg-header)] backdrop-blur-md transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14">
           
-          {/* Logo */}
-          <div className="flex items-center space-x-2.5">
-            <div className="p-1.5 rounded-lg bg-blue-600/20 border border-blue-500/30">
-              <Bug className="w-4 h-4 text-blue-400" />
+          {/* Logo & Platform Name */}
+          <div className="flex items-center space-x-3">
+            <div className="p-1.5 rounded-lg border border-[var(--border-medium)] bg-[var(--bg-surface-elevated)] shadow-sm">
+              <Bug className="w-4 h-4 text-[var(--text-primary)]" />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white tracking-tight">BugIdentifier</span>
-              <span className="text-xs text-slate-400">Code-RAG Engine</span>
+              <span className="text-sm font-semibold text-[var(--text-primary)] tracking-tight">BugIdentifier</span>
+              <span className="text-xs text-[var(--text-muted)] font-mono">v2.0</span>
             </div>
           </div>
 
-          {/* Status Pills */}
-          <div className="flex items-center gap-2 text-xs">
-            {/* Backend Status */}
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border font-medium ${
+          {/* Right Controls: Status Pills & Theme Selector */}
+          <div className="flex items-center gap-2.5 text-xs">
+            
+            {/* Backend API Status */}
+            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border font-medium transition-colors ${
               isOnline
-                ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-400'
-                : 'bg-red-950/40 border-red-800/60 text-red-400'
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 dark:text-emerald-400'
+                : 'bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-400'
             }`}>
               {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-              <span>{isOnline ? 'API Online' : 'API Offline'}</span>
+              <span>{isOnline ? 'Gateway Online' : 'Gateway Offline'}</span>
             </div>
 
-            {/* DB Mode */}
+            {/* DB Storage Engine */}
             {systemStatus && (
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-[#111827] border-[#1f293d] text-slate-300 font-medium">
-                <Shield className="w-3.5 h-3.5 text-slate-400" />
-                <span className="capitalize">{systemStatus.db_mode || 'local'}</span>
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] font-medium">
+                <Shield className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                <span>{systemStatus.db_mode || 'Hybrid RAG'}</span>
               </div>
             )}
 
-            {/* LLM */}
+            {/* LLM Engine */}
             {systemStatus?.llm_provider && (
-              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md border bg-[#111827] border-[#1f293d] text-slate-300 font-medium">
-                <Activity className="w-3.5 h-3.5 text-slate-400" />
-                <span className="capitalize">{systemStatus.llm_provider}</span>
+              <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-secondary)] font-medium">
+                <Activity className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                <span className="truncate max-w-[200px]">{systemStatus.llm_provider}</span>
               </div>
             )}
+
+            {/* Production Theme Switcher: Dark vs Silver */}
+            <div className="flex items-center p-0.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)]">
+              <button
+                type="button"
+                onClick={() => onThemeChange('dark')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] shadow-xs'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                }`}
+                title="Switch to Obsidian Dark"
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span>Dark</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => onThemeChange('silver')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                  theme === 'silver'
+                    ? 'bg-[var(--accent-btn-bg)] text-[var(--accent-btn-text)] shadow-xs'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                }`}
+                title="Switch to Platinum Silver"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Silver</span>
+              </button>
+            </div>
+
           </div>
 
         </div>

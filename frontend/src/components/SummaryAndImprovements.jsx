@@ -23,19 +23,19 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
   const minorCount = vulnerabilities.filter(v => (v.severity_level || '').toLowerCase() === 'minor').length;
 
   let healthGrade = 'A';
-  let healthColor = 'text-emerald-400';
-  let healthBg = 'bg-emerald-950/40 border-emerald-800/60';
+  let healthColor = 'text-emerald-500 dark:text-emerald-400';
+  let healthBg = 'bg-emerald-500/10 border-emerald-500/30';
   let healthScore = 100 - (criticalCount * 25 + majorCount * 15 + minorCount * 5);
   if (healthScore < 0) healthScore = 0;
 
   if (criticalCount > 0 || healthScore < 70) {
     healthGrade = 'C';
-    healthColor = 'text-red-400';
-    healthBg = 'bg-red-950/40 border-red-800/60';
+    healthColor = 'text-red-500 dark:text-red-400';
+    healthBg = 'bg-red-500/10 border-red-500/30';
   } else if (majorCount > 0 || healthScore < 85) {
     healthGrade = 'B';
-    healthColor = 'text-amber-400';
-    healthBg = 'bg-amber-950/40 border-amber-800/60';
+    healthColor = 'text-amber-500 dark:text-amber-400';
+    healthBg = 'bg-amber-500/10 border-amber-500/30';
   }
 
   // Generate downloadable improvement report
@@ -86,16 +86,16 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
     <div className="w-full max-w-7xl mx-auto my-4 space-y-5">
       
       {/* 1. Top Executive Banner */}
-      <div className="ui-card p-5 border border-[#1f293d] bg-[#111827]">
+      <div className="ui-card p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Executive Scan Report
             </span>
-            <h2 className="text-xl font-bold text-white mt-1">
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mt-1">
               Summary &amp; Engineering Improvements
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
               Overview of codebase quality, defect patterns, and actionable architectural recommendations.
             </p>
           </div>
@@ -103,14 +103,14 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
           <div className="flex items-center space-x-2">
             <button
               onClick={handleCopySummary}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1f293d] hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-colors cursor-pointer"
             >
-              {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <CheckCheck className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-[var(--text-muted)]" />}
               <span>{copied ? "Copied!" : "Copy Summary"}</span>
             </button>
             <button
               onClick={handleDownloadSummary}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[var(--accent-btn-bg)] hover:bg-[var(--accent-btn-hover)] text-[var(--accent-btn-text)] text-xs font-medium shadow-xs transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download Report</span>
@@ -124,41 +124,41 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
         {/* Health Grade Card */}
         <div className={`p-4 rounded-md border ${healthBg} flex items-center justify-between`}>
           <div>
-            <div className="text-xs text-slate-300 font-medium">Code Health Grade</div>
+            <div className="text-xs text-[var(--text-secondary)] font-medium">Code Health Grade</div>
             <div className={`text-2xl font-bold mt-1 ${healthColor}`}>
               Grade {healthGrade}
             </div>
-            <div className="text-[11px] text-slate-400 mt-0.5">{healthScore}/100 Quality Score</div>
+            <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{healthScore}/100 Quality Score</div>
           </div>
-          <div className={`w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg ${healthColor} bg-[#0b0f19] border border-slate-800`}>
+          <div className={`w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg ${healthColor} bg-[var(--bg-surface)] border border-[var(--border-subtle)]`}>
             {healthGrade}
           </div>
         </div>
 
         {/* Total Files Card */}
-        <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-          <div className="text-xs text-slate-400">Files Analyzed</div>
-          <div className="text-2xl font-bold text-white mt-1 font-mono">{totalFiles}</div>
-          <div className="text-[11px] text-emerald-400 mt-0.5 flex items-center gap-1">
+        <div className="ui-card p-4">
+          <div className="text-xs text-[var(--text-muted)]">Files Analyzed</div>
+          <div className="text-2xl font-bold text-[var(--text-primary)] mt-1 font-mono">{totalFiles}</div>
+          <div className="text-[11px] text-emerald-500 mt-0.5 flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             <span>{cleanFilesCount} files clean (0 defects)</span>
           </div>
         </div>
 
         {/* Issues Found Card */}
-        <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-          <div className="text-xs text-slate-400">Total Defects Identified</div>
-          <div className="text-2xl font-bold text-white mt-1 font-mono">{vulnerabilities.length}</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">
+        <div className="ui-card p-4">
+          <div className="text-xs text-[var(--text-muted)]">Total Defects Identified</div>
+          <div className="text-2xl font-bold text-[var(--text-primary)] mt-1 font-mono">{vulnerabilities.length}</div>
+          <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">
             {criticalCount} Critical &bull; {majorCount} Major &bull; {minorCount} Minor
           </div>
         </div>
 
         {/* Automated Fixes Ready */}
-        <div className="ui-card p-4 border border-[#1f293d] bg-[#111827]">
-          <div className="text-xs text-slate-400">Automated Patches Ready</div>
-          <div className="text-2xl font-bold text-white mt-1 font-mono">{vulnerabilities.length}</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">Ready for 1-click review &amp; apply</div>
+        <div className="ui-card p-4">
+          <div className="text-xs text-[var(--text-muted)]">Automated Patches Ready</div>
+          <div className="text-2xl font-bold text-[var(--text-primary)] mt-1 font-mono">{vulnerabilities.length}</div>
+          <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">Ready for 1-click review &amp; apply</div>
         </div>
       </div>
 
@@ -166,19 +166,19 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         
         {/* Left Column: Detected Issues Summary (6 cols) */}
-        <div className="lg:col-span-6 ui-card p-5 space-y-4 border border-[#1f293d] bg-[#111827]">
-          <div className="flex items-center justify-between pb-3 border-b border-[#1f293d]">
+        <div className="lg:col-span-6 ui-card p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
             <div>
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500" />
                 <span>Detected Defect Findings</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">Summary of flagged methods with proposed fixes</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">Summary of flagged methods with proposed fixes</p>
             </div>
 
             <button
               onClick={() => onNavigateToDiff(0)}
-              className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs text-[var(--text-primary)] hover:underline font-medium transition-colors cursor-pointer"
             >
               <span>Inspect Diffs</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -187,46 +187,46 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
 
           <div className="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
             {vulnerabilities.length === 0 ? (
-              <div className="p-6 text-center text-slate-400 text-xs bg-[#0b0f19] rounded-md border border-[#1f293d]">
-                <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                <p className="font-semibold text-white">No defects detected in this repository!</p>
-                <p className="mt-1 text-slate-400">All analyzed methods passed AST and pattern verification.</p>
+              <div className="p-6 text-center text-[var(--text-secondary)] text-xs bg-[var(--bg-subtle)] rounded-md border border-[var(--border-subtle)]">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                <p className="font-semibold text-[var(--text-primary)]">No defects detected in this repository!</p>
+                <p className="mt-1 text-[var(--text-muted)]">All analyzed methods passed AST and pattern verification.</p>
               </div>
             ) : (
               vulnerabilities.map((v, idx) => (
                 <div
                   key={idx}
-                  className="p-3.5 rounded-md bg-[#0b0f19] border border-[#1f293d] hover:border-slate-700 transition-colors space-y-2"
+                  className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] hover:border-[var(--border-medium)] transition-colors space-y-2"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
                         (v.severity_level || '').toLowerCase() === 'critical'
-                          ? 'bg-red-950 text-red-300 border border-red-800'
-                          : 'bg-amber-950 text-amber-300 border border-amber-800'
+                          ? 'bg-red-500/10 text-red-500 dark:text-red-400 border border-red-500/30'
+                          : 'bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/30'
                       }`}>
                         {v.severity_level || 'Defect'}
                       </span>
-                      <span className="font-semibold text-xs text-white">{v.bug_type}</span>
+                      <span className="font-semibold text-xs text-[var(--text-primary)]">{v.bug_type}</span>
                     </div>
 
-                    <span className="font-mono text-[11px] text-slate-400">
+                    <span className="font-mono text-[11px] text-[var(--text-muted)]">
                       Lines {v.line_number_start}-{v.line_number_end}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                     {v.explanation}
                   </p>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-[#1f293d] text-[11px]">
-                    <span className="font-mono text-slate-400 truncate max-w-[240px]">
-                      {v.file_path} &bull; <span className="text-white">{v.method_name}()</span>
+                  <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[11px]">
+                    <span className="font-mono text-[var(--text-muted)] truncate max-w-[240px]">
+                      {v.file_path} &bull; <span className="text-[var(--text-primary)]">{v.method_name}()</span>
                     </span>
 
                     <button
                       onClick={() => onNavigateToDiff(idx)}
-                      className="text-blue-400 hover:text-blue-300 font-medium inline-flex items-center gap-1 cursor-pointer"
+                      className="text-[var(--text-primary)] hover:underline font-medium inline-flex items-center gap-1 cursor-pointer"
                     >
                       <span>View Diff</span>
                       <ArrowRight className="w-3 h-3" />
@@ -239,66 +239,66 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
         </div>
 
         {/* Right Column: Recommended Code Quality Improvements (6 cols) */}
-        <div className="lg:col-span-6 ui-card p-5 space-y-4 border border-[#1f293d] bg-[#111827]">
-          <div className="pb-3 border-b border-[#1f293d]">
-            <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-blue-400" />
+        <div className="lg:col-span-6 ui-card p-5 space-y-4">
+          <div className="pb-3 border-b border-[var(--border-subtle)]">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-[var(--text-secondary)]" />
               <span>Recommended Engineering Improvements</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Best practices to prevent similar defects in future releases</p>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5">Best practices to prevent similar defects in future releases</p>
           </div>
 
           <div className="space-y-3">
             
             {/* Recommendation 1 */}
-            <div className="p-3.5 rounded-md bg-[#0b0f19] border border-[#1f293d] space-y-1">
-              <div className="flex items-center space-x-2 text-xs font-semibold text-white">
-                <div className="w-5 h-5 rounded bg-[#1f293d] text-blue-400 border border-slate-700 flex items-center justify-center text-[10px]">
+            <div className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--text-primary)]">
+                <div className="w-5 h-5 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px]">
                   1
                 </div>
                 <span>Defensive Boundary &amp; Null Checks</span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-7">
-                Validate array lengths before slicing or sorting, and use optional chaining (<code className="text-white font-mono">?.</code>) or nullish coalescing (<code className="text-white font-mono">??</code>) to prevent runtime crashes.
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed pl-7">
+                Validate array lengths before slicing or sorting, and use optional chaining (<code className="text-[var(--text-primary)] font-mono">?.</code>) or nullish coalescing (<code className="text-[var(--text-primary)] font-mono">??</code>) to prevent runtime crashes.
               </p>
             </div>
 
             {/* Recommendation 2 */}
-            <div className="p-3.5 rounded-md bg-[#0b0f19] border border-[#1f293d] space-y-1">
-              <div className="flex items-center space-x-2 text-xs font-semibold text-white">
-                <div className="w-5 h-5 rounded bg-[#1f293d] text-blue-400 border border-slate-700 flex items-center justify-center text-[10px]">
+            <div className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--text-primary)]">
+                <div className="w-5 h-5 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px]">
                   2
                 </div>
                 <span>Async / Await Flow Handling</span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-7">
-                Always <code className="text-white font-mono">await</code> asynchronous calls and encapsulate them in <code className="text-white font-mono">try / catch</code> blocks to prevent silent promise rejections and stale UI state.
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed pl-7">
+                Always <code className="text-[var(--text-primary)] font-mono">await</code> asynchronous calls and encapsulate them in <code className="text-[var(--text-primary)] font-mono">try / catch</code> blocks to prevent silent promise rejections and unhandled errors.
               </p>
             </div>
 
             {/* Recommendation 3 */}
-            <div className="p-3.5 rounded-md bg-[#0b0f19] border border-[#1f293d] space-y-1">
-              <div className="flex items-center space-x-2 text-xs font-semibold text-white">
-                <div className="w-5 h-5 rounded bg-[#1f293d] text-blue-400 border border-slate-700 flex items-center justify-center text-[10px]">
+            <div className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--text-primary)]">
+                <div className="w-5 h-5 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px]">
                   3
                 </div>
                 <span>Strict State Immutability</span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-7">
-                Never mutate state directly (e.g. <code className="text-white font-mono">array.sort()</code> in-place). Create shallow or deep copies before executing mutating operations.
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed pl-7">
+                Never mutate state directly (e.g. <code className="text-[var(--text-primary)] font-mono">array.sort()</code> in-place). Create shallow or deep copies before executing mutating operations.
               </p>
             </div>
 
             {/* Recommendation 4 */}
-            <div className="p-3.5 rounded-md bg-[#0b0f19] border border-[#1f293d] space-y-1">
-              <div className="flex items-center space-x-2 text-xs font-semibold text-white">
-                <div className="w-5 h-5 rounded bg-[#1f293d] text-blue-400 border border-slate-700 flex items-center justify-center text-[10px]">
+            <div className="p-3.5 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--text-primary)]">
+                <div className="w-5 h-5 rounded bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[10px]">
                   4
                 </div>
                 <span>Automated Static Analysis in CI/CD</span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed pl-7">
-                Integrate automated AST scanning or ESLint rules in your GitHub Actions / GitLab CI pipeline to catch defects prior to merging pull requests.
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed pl-7">
+                Integrate automated AST scanning and linter rules in your GitHub Actions / GitLab CI pipeline to catch defects prior to merging pull requests.
               </p>
             </div>
 
@@ -307,7 +307,7 @@ export default function SummaryAndImprovements({ scanResult, onNavigateToDiff, o
           <div className="pt-2">
             <button
               onClick={onNavigateToDiff}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md bg-[var(--accent-btn-bg)] hover:bg-[var(--accent-btn-hover)] text-[var(--accent-btn-text)] font-semibold text-xs transition-colors cursor-pointer"
             >
               <span>Go to Code Review &amp; Apply Patches</span>
               <ArrowRight className="w-3.5 h-3.5" />

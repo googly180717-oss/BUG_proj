@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Layers, Database, GitCommit, Search, Shield, PieChart, ArrowRight, ExternalLink } from 'lucide-react';
+import { X, Database, GitCommit, Search, Shield, PieChart } from 'lucide-react';
 
 export default function DatasetStatsModal({ isOpen, onClose }) {
   const [stats, setStats] = useState(null);
@@ -39,96 +39,96 @@ export default function DatasetStatsModal({ isOpen, onClose }) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div className="relative w-full max-w-4xl ui-card border border-slate-800/90 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="relative w-full max-w-4xl ui-card shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         {/* Modal Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center justify-between bg-[#070c17]/90">
+        <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--bg-surface)]">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-xl bg-cyan-950/60 text-cyan-400 border border-cyan-800/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-              <Database className="w-5 h-5" />
+            <div className="p-2 rounded-lg bg-[var(--bg-surface-elevated)] text-[var(--text-primary)] border border-[var(--border-subtle)]">
+              <Database className="w-4 h-4 text-[var(--text-secondary)]" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
                 Bug-Fix Benchmark Dataset
-                <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/60">
-                  478 Verified Pairs
+                <span className="text-[11px] px-2 py-0.5 rounded-full font-mono font-medium bg-[var(--bg-surface-elevated)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
+                  {stats?.total_pairs || 3179} Verified Pairs
                 </span>
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Mined historical bug-fix pairs used for pattern matching and repair synthesis.
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                Historical bug-fix pairs used for AST delta matching and repair synthesis.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition-all"
+            className="p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-elevated)] transition-all cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-5 bg-[#090e1a]/95">
+        <div className="p-5 overflow-y-auto space-y-4 bg-[var(--bg-surface-elevated)]">
           
           {/* Key Metrics Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <div className="text-xs text-slate-400 font-medium">Total Indexed Pairs</div>
-              <div className="text-xl font-extrabold text-white mt-1 font-mono">{stats?.total_pairs || 478}</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Buggy &amp; Fixed Code</div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--text-muted)] font-medium">Total Indexed Pairs</div>
+              <div className="text-xl font-bold text-[var(--text-primary)] mt-1 font-mono">{stats?.total_pairs || 3179}</div>
+              <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">Verified Twins</div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <div className="text-xs text-slate-400 font-medium">AST Vector Dimensions</div>
-              <div className="text-xl font-extrabold text-cyan-400 mt-1 font-mono">120-D</div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Structural Geometry</div>
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--text-muted)] font-medium">AST Vector Dimensions</div>
+              <div className="text-xl font-bold text-[var(--text-primary)] mt-1 font-mono">64 / 120-D</div>
+              <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">Structural Geometry</div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <div className="text-xs text-slate-400 font-medium">Boundary Check Fixes</div>
-              <div className="text-xl font-extrabold text-emerald-400 mt-1 font-mono">
-                {stats?.delta_metrics?.total_boundary_check_fixes || 312}
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--text-muted)] font-medium">Boundary Check Fixes</div>
+              <div className="text-xl font-bold text-emerald-500 mt-1 font-mono">
+                {stats?.delta_metrics?.total_boundary_check_fixes || 409}
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Defensive Guard Fixes</div>
+              <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">Defensive Guard Fixes</div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <div className="text-xs text-slate-400 font-medium">Async / Await Fixes</div>
-              <div className="text-xl font-extrabold text-amber-400 mt-1 font-mono">
-                {stats?.delta_metrics?.total_async_await_fixes || 148}
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <div className="text-xs text-[var(--text-muted)] font-medium">Async / Await Fixes</div>
+              <div className="text-xl font-bold text-amber-500 mt-1 font-mono">
+                {stats?.delta_metrics?.total_async_await_fixes || 152}
               </div>
-              <div className="text-[11px] text-slate-500 mt-0.5">Promise Timing Fixes</div>
+              <div className="text-[11px] text-[var(--text-secondary)] mt-0.5">Promise Timing Fixes</div>
             </div>
           </div>
 
           {/* Bug Types & Severity Distribution */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-                <PieChart className="w-4 h-4 text-cyan-400" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3 flex items-center gap-1.5">
+                <PieChart className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                 <span>Bug Types Distribution</span>
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {stats?.bug_types && Object.entries(stats.bug_types).map(([type, count]) => (
                   <div key={type} className="flex items-center justify-between text-xs font-medium">
-                    <span className="text-slate-300">{type}</span>
-                    <span className="font-mono font-bold text-cyan-300 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/60">{count}</span>
+                    <span className="text-[var(--text-secondary)]">{type}</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)] bg-[var(--bg-subtle)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">{count}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#030712] border border-slate-800">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-emerald-400" />
+            <div className="p-3.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
                 <span>Severity Classifications</span>
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {stats?.severities && Object.entries(stats.severities).map(([sev, count]) => (
                   <div key={sev} className="flex items-center justify-between text-xs font-medium">
-                    <span className="text-slate-300">{sev}</span>
-                    <span className="font-mono font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">{count}</span>
+                    <span className="text-[var(--text-secondary)]">{sev}</span>
+                    <span className="font-mono font-bold text-[var(--text-primary)] bg-[var(--bg-subtle)] px-2 py-0.5 rounded border border-[var(--border-subtle)]">{count}</span>
                   </div>
                 ))}
               </div>
@@ -136,55 +136,55 @@ export default function DatasetStatsModal({ isOpen, onClose }) {
           </div>
 
           {/* Search & Filter Historical Samples Table */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                <GitCommit className="w-4 h-4 text-cyan-400" />
+              <h4 className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <GitCommit className="w-4 h-4 text-[var(--text-secondary)]" />
                 <span>Historical Bug-Fix Samples</span>
               </h4>
               <div className="relative w-full sm:w-64">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-500" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-2 text-[var(--text-muted)]" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search commits or repo..."
-                  className="w-full pl-8 pr-3 py-1.5 bg-[#030712] border border-slate-800 rounded-lg text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/80"
+                  className="w-full pl-8 pr-3 py-1 bg-[var(--bg-surface)] border border-[var(--border-subtle)] rounded-md text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-strong)]"
                 />
               </div>
             </div>
 
             {/* Table */}
-            <div className="rounded-xl border border-slate-800 overflow-hidden bg-[#030712]">
+            <div className="rounded-lg border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-surface)]">
               <div className="max-h-60 overflow-y-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#070c17] text-slate-400 font-mono text-[10px] uppercase sticky top-0 border-b border-slate-800">
+                  <thead className="bg-[var(--bg-subtle)] text-[var(--text-muted)] font-mono text-[10px] uppercase sticky top-0 border-b border-[var(--border-subtle)]">
                     <tr>
-                      <th className="p-3">ID</th>
-                      <th className="p-3">Repository</th>
-                      <th className="p-3">Bug Category</th>
-                      <th className="p-3">Severity</th>
-                      <th className="p-3">Structural Fix</th>
-                      <th className="p-3">Commit Message</th>
+                      <th className="p-2.5">ID</th>
+                      <th className="p-2.5">Repository</th>
+                      <th className="p-2.5">Bug Category</th>
+                      <th className="p-2.5">Severity</th>
+                      <th className="p-2.5">Structural Fix</th>
+                      <th className="p-2.5">Commit Message</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/60 text-slate-300 font-medium">
+                  <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
                     {filteredSamples.map((s) => (
-                      <tr key={s.pair_id} className="hover:bg-slate-900/40 transition-colors">
-                        <td className="p-3 font-mono text-cyan-400 font-bold">#{s.pair_id}</td>
-                        <td className="p-3 truncate max-w-[120px] font-mono text-slate-400">{s.project_name}</td>
-                        <td className="p-3">{s.bug_type}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            s.severity === 'Critical' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-amber-950 text-amber-300 border border-amber-800'
+                      <tr key={s.pair_id} className="hover:bg-[var(--bg-surface-elevated)] transition-colors">
+                        <td className="p-2.5 font-mono text-[var(--text-primary)] font-bold">#{s.pair_id}</td>
+                        <td className="p-2.5 truncate max-w-[120px] font-mono text-[var(--text-muted)]">{s.project_name}</td>
+                        <td className="p-2.5">{s.bug_type}</td>
+                        <td className="p-2.5">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                            s.severity === 'Critical' ? 'bg-red-500/10 text-red-500 border border-red-500/30' : 'bg-amber-500/10 text-amber-500 border border-amber-500/30'
                           }`}>
                             {s.severity}
                           </span>
                         </td>
-                        <td className="p-3 font-mono text-[11px] text-slate-400">
+                        <td className="p-2.5 font-mono text-[11px] text-[var(--text-muted)]">
                           {`+${s.delta_signature?.added_boundary_check || 0} guard, +${s.delta_signature?.added_await || 0} await`}
                         </td>
-                        <td className="p-3 truncate max-w-[200px] text-slate-400">{s.commit_message}</td>
+                        <td className="p-2.5 truncate max-w-[200px] text-[var(--text-secondary)]">{s.commit_message}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -196,10 +196,10 @@ export default function DatasetStatsModal({ isOpen, onClose }) {
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-slate-800/80 bg-[#070c17]/90 flex items-center justify-end">
+        <div className="p-3.5 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 text-xs font-semibold border border-slate-700/80 transition-all"
+            className="px-3.5 py-1.5 rounded-md bg-[var(--bg-surface-elevated)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-all cursor-pointer"
           >
             Close
           </button>

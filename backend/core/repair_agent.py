@@ -35,10 +35,10 @@ def is_rate_limit_or_temporary_error(err: Exception) -> bool:
     ])
 
 GEMINI_MODELS_CHAIN = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.5-flash",
     "gemini-2.5-flash-lite",
-    "gemini-flash-latest"
+    "gemini-flash-latest",
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash"
 ]
 
 SYSTEM_PROMPT_TEMPLATE = """You are an elite code analyzer and automated program repair assistant.
@@ -101,30 +101,81 @@ Output your response strictly as valid JSON with these keys:
 }}
 """
 
+class GeminiKeySlot:
+    """Encapsulates an individual Gemini API key, its client, health status, and failure cooldowns."""
+    def __init__(self, key: str, index: int):
+        self.key = key.strip()
+        self.index = index
+        self.masked = (self.key[:6] + "..." + self.key[-4:]) if len(self.key) > 10 else "***"
+        self.client = None
+        self.cooldown_until = 0.0
+        self.is_disabled = False
+        self.failure_reason = ""
+        self.successful_calls = 0
+        self._init_client()
+
+    def _init_client(self):
+        try:
+            from google import genai
+            self.client = genai.Client(api_key=self.key)
+        except Exception as e:
+            self.is_disabled = True
+            self.failure_reason = str(e)
+            print(f"[LLM Agent] Failed to init client for Gemini Key #{self.index} ({self.masked}): {e}")
+
+    def is_available(self, now: float) -> bool:
+        if self.is_disabled or self.client is None:
+            return False
+        if now < self.cooldown_until:
+            return False
+        return True
+
+    def mark_cooldown(self, seconds: float = 60.0, reason: str = ""):
+        self.cooldown_until = time.time() + seconds
+        print(f"[LLM KeyPool] [COOLDOWN] Gemini Key #{self.index} ({self.masked}) cooling down for {int(seconds)}s. Reason: {reason}")
+
+    def mark_disabled(self, reason: str = ""):
+        self.is_disabled = True
+        self.failure_reason = reason
+        print(f"[LLM KeyPool] [DISABLED] Gemini Key #{self.index} ({self.masked}) permanently disabled. Reason: {reason}")
+
+
 class LangChainRepairAgent:
     def __init__(self):
-        self.gemini_client = None
+        self.gemini_slots: List[GeminiKeySlot] = []
         self.openai_client = None
         self.active_provider = "Deterministic AST Engine"
         self.active_model = "offline-ast-synthesis-v2"
-        self.rate_limiter = LLMRateLimiter(min_interval_seconds=3.0)
+        self.rate_limiter = LLMRateLimiter(min_interval_seconds=2.0)
         self._patch_cache: Dict[str, Dict[str, Any]] = {}
         self._model_cooldowns: Dict[str, float] = {}
         self._init_llm()
 
+    @property
+    def gemini_client(self):
+        """Backward compatibility for any caller inspecting gemini_client."""
+        for slot in self.gemini_slots:
+            if not slot.is_disabled and slot.client is not None:
+                return slot.client
+        return None
+
     def _init_llm(self):
-        # 1. Initialize Google Gemini if key provided
-        gemini_key = (settings.gemini_api_key or "").strip()
-        if gemini_key:
-            try:
-                from google import genai
-                self.gemini_client = genai.Client(api_key=gemini_key)
-                self.active_provider = "Google Gemini"
-                self.active_model = "gemini-2.5-flash-lite"
-                print(f"[LLM Agent] Initialized Google Gemini AI Client ({self.active_model}) with Adaptive Rate-Limiting.")
-                return
-            except Exception as e:
-                print(f"[LLM Agent] Failed to init Gemini Client: {e}")
+        # 1. Initialize Google Gemini Multi-Key Pool
+        self.gemini_slots = []
+        raw_keys = list(getattr(settings, "gemini_api_keys", []))
+        if not raw_keys and getattr(settings, "gemini_api_key", ""):
+            raw_keys = [settings.gemini_api_key]
+
+        for idx, k in enumerate(raw_keys, start=1):
+            slot = GeminiKeySlot(key=k, index=idx)
+            self.gemini_slots.append(slot)
+
+        usable_slots = [s for s in self.gemini_slots if not s.is_disabled]
+        if usable_slots:
+            self.active_provider = "Google Gemini (Multi-Key Pool)"
+            self.active_model = "gemini-2.5-flash-lite"
+            print(f"[LLM Agent] Initialized {len(usable_slots)} Google Gemini API key slot(s) with automatic failover & fallback.")
+            return
 
         # 2. Initialize OpenAI if key provided
         openai_key = (settings.openai_api_key or "").strip()
@@ -139,7 +190,7 @@ class LangChainRepairAgent:
             except Exception as e:
                 print(f"[LLM Agent] Failed to init OpenAI Client: {e}")
 
-        print("[LLM Agent] No active API key (GEMINI_API_KEY / OPENAI_API_KEY) configured in .env.")
+        print("[LLM Agent] No active API key (GEMINI_API_KEY* / OPENAI_API_KEY) configured in .env.")
         print("[LLM Agent] Operating in High-Speed Deterministic In-Context Synthesis Mode (Offline Ready).")
 
     def verify_and_repair(
@@ -189,85 +240,121 @@ class LangChainRepairAgent:
         print(f"\n[LLM Trace] >>> Evaluating '{file_path}' ({project_role})")
         print(f"[LLM Trace]     Delta-RAG Similarity: {similarity_score:.4f} | RAG Commit: {matched_pair.get('commit_id', 'twin')}")
 
-        # 1. Try Google Gemini with Multi-Model Fallback & Exponential Backoff Rate Limiting
-        if self.gemini_client is not None:
+        # 1. Try Google Gemini with Multi-Key & Multi-Model Fallback Chain
+        if self.gemini_slots:
             now_time = time.time()
-            for model_name in GEMINI_MODELS_CHAIN:
-                # If this model was temporarily paused due to per-minute quota exhaustion, skip to next model
-                if now_time < self._model_cooldowns.get(model_name, 0.0):
-                    remaining_cool = int(self._model_cooldowns[model_name] - now_time)
-                    print(f"[LLM RateLimiter] Skipping {model_name} (cooldown: {remaining_cool}s remaining) -> Trying next candidate...")
-                    continue
+            # Candidate slots that aren't permanently disabled
+            candidate_slots = [s for s in self.gemini_slots if not s.is_disabled]
+            
+            # Prioritize slots that are not in cooldown
+            usable_slots = [s for s in candidate_slots if s.is_available(now_time)]
+            if not usable_slots and candidate_slots:
+                # If all non-disabled keys are currently cooling down, find the one closest to expiry
+                earliest = min(candidate_slots, key=lambda s: s.cooldown_until)
+                wait_time = max(0.0, earliest.cooldown_until - now_time)
+                if wait_time <= 4.0:
+                    time.sleep(wait_time)
+                    usable_slots = [earliest]
 
-                max_retries = 2
-                model_dispatched = False
-                for attempt in range(max_retries):
-                    # Enforce inter-call pacing to prevent bursting over RPM quota
-                    pacing_waited = self.rate_limiter.acquire()
-                    if pacing_waited > 0.1:
-                        print(f"[LLM RateLimiter] Pacing request by {pacing_waited:.2f}s to respect Gemini RPM quota.")
+            for slot in usable_slots:
+                slot_succeeded = False
+                for model_name in GEMINI_MODELS_CHAIN:
+                    # If this model is in global cooldown, skip
+                    if now_time < self._model_cooldowns.get(model_name, 0.0):
+                        continue
 
-                    try:
-                        print(f"[LLM Trace]     Dispatching prompt to Google Gemini ({model_name}) [attempt {attempt + 1}/{max_retries}]...")
-                        response = self.gemini_client.models.generate_content(
-                            model=model_name,
-                            contents=prompt_text
-                        )
-                        content = (response.text or "").strip()
-                        elapsed_ms = int((time.time() - t0) * 1000)
-                        json_match = re.search(r'\{[\s\S]*\}', content)
-                        if json_match:
-                            parsed = json.loads(json_match.group(0))
-                            is_bug = parsed.get("is_bug_present", True)
-                            suggested_code = parsed.get("suggested_fix_code", "").strip()
+                    max_retries = 2
+                    model_completed = False
+                    for attempt in range(max_retries):
+                        pacing_waited = self.rate_limiter.acquire()
+                        try:
+                            print(f"[LLM Trace]     Dispatching prompt via Gemini Key #{slot.index} ({slot.masked}) [{model_name}] [attempt {attempt + 1}/{max_retries}]...")
+                            response = slot.client.models.generate_content(
+                                model=model_name,
+                                contents=prompt_text
+                            )
+                            content = (response.text or "").strip()
+                            elapsed_ms = int((time.time() - t0) * 1000)
+                            json_match = re.search(r'\{[\s\S]*\}', content)
+                            if json_match:
+                                parsed = json.loads(json_match.group(0))
+                                is_bug = parsed.get("is_bug_present", True)
+                                suggested_code = parsed.get("suggested_fix_code", "").strip()
 
-                            if suggested_code and (len(suggested_code) > 10):
-                                print(f"[LLM Trace] <<< Gemini ({model_name}) responded in {elapsed_ms}ms (is_bug={is_bug})")
-                                res_obj = {
-                                    "is_bug_present": is_bug,
-                                    "bug_type": parsed.get("bug_type", bug_type),
-                                    "severity_level": parsed.get("severity_level", matched_pair.get("severity", "Major")),
-                                    "explanation": parsed.get("explanation", matched_pair.get("root_cause", "Code refactored to resolve structural defect.")),
-                                    "suggested_fix_code": suggested_code,
-                                    "matched_historical_commit": matched_pair.get("commit_id", "commit-hash-twin"),
-                                    "matched_commit_message": matched_pair.get("commit_message", ""),
-                                    "delta_signature": delta_sig_dict,
-                                    "confidence_score": round(similarity_score, 4),
-                                    "llm_trace": {
-                                        "status": "ONLINE_SUCCESS",
-                                        "provider": "Google Gemini",
-                                        "model": model_name,
-                                        "latency_ms": elapsed_ms,
-                                        "prompt_chars": len(prompt_text),
-                                        "target_file": file_path,
-                                        "method_role": project_role,
-                                        "project": project_name,
-                                        "rate_limit_retries": attempt,
-                                        "pacing_delay_sec": round(pacing_waited, 2)
+                                if suggested_code and (len(suggested_code) > 10):
+                                    slot.successful_calls += 1
+                                    print(f"[LLM Trace] <<< Gemini Key #{slot.index} ({model_name}) responded in {elapsed_ms}ms (is_bug={is_bug})")
+                                    res_obj = {
+                                        "is_bug_present": is_bug,
+                                        "bug_type": parsed.get("bug_type", bug_type),
+                                        "severity_level": parsed.get("severity_level", matched_pair.get("severity", "Major")),
+                                        "explanation": parsed.get("explanation", matched_pair.get("root_cause", "Code refactored to resolve structural defect.")),
+                                        "suggested_fix_code": suggested_code,
+                                        "matched_historical_commit": matched_pair.get("commit_id", "commit-hash-twin"),
+                                        "matched_commit_message": matched_pair.get("commit_message", ""),
+                                        "delta_signature": delta_sig_dict,
+                                        "confidence_score": round(similarity_score, 4),
+                                        "llm_trace": {
+                                            "status": "ONLINE_SUCCESS",
+                                            "provider": "Google Gemini",
+                                            "model": model_name,
+                                            "key_slot": slot.index,
+                                            "key_masked": slot.masked,
+                                            "latency_ms": elapsed_ms,
+                                            "prompt_chars": len(prompt_text),
+                                            "target_file": file_path,
+                                            "method_role": project_role,
+                                            "project": project_name,
+                                            "pacing_delay_sec": round(pacing_waited, 2)
+                                        }
                                     }
-                                }
-                                self._patch_cache[cache_key] = res_obj
-                                return res_obj
-                        # If parsed but empty response, break out of retry loop for this model
-                        model_dispatched = True
-                        break
+                                    self._patch_cache[cache_key] = res_obj
+                                    return res_obj
 
-                    except Exception as e:
-                        err_str = str(e).lower()
-                        # If per-model quota or 503 high demand is hit, cool down model and immediately rotate to next candidate!
-                        if any(k in err_str for k in ["quota", "429", "resource_exhausted", "503", "unavailable", "high demand", "overloaded"]):
-                            print(f"[LLM RateLimiter] {model_name} quota/capacity limit reached. Rotating immediately to next candidate in model chain...")
-                            self._model_cooldowns[model_name] = time.time() + 60.0
+                            model_completed = True
                             break
-                        elif is_rate_limit_or_temporary_error(e):
-                            backoff = (1.5 * (2 ** attempt)) + random.uniform(0.3, 0.8)
-                            print(f"[LLM RateLimiter] Temporary network blip on {model_name} (attempt {attempt + 1}/{max_retries}). Retrying in {backoff:.2f}s...")
-                            time.sleep(backoff)
-                        else:
-                            print(f"[LLM Trace]     Gemini ({model_name}) non-retryable error: {e}. Moving to next fallback model...")
-                            break
-                if model_dispatched:
-                    break
+
+                        except Exception as e:
+                            err_str = str(e).lower()
+                            # 1. Auth/Permission Errors: disable key and immediately fallback to next key slot
+                            if any(k in err_str for k in ["401", "unauthenticated", "403", "permission_denied", "api_key_invalid", "invalid authentication", "access_token_type_unsupported"]):
+                                slot.mark_disabled(reason=f"Auth/Permission rejection: {e}")
+                                print(f"[LLM Fallback] [AUTH REJECTED] Gemini Key #{slot.index} ({slot.masked}) rejected. Falling back to next API key immediately...")
+                                model_completed = True
+                                break  # Break from model retry loop to trigger next slot
+
+                            # 2. Rate limit / Quota exceeded: cooldown key and immediately fallback to next key slot
+                            elif any(k in err_str for k in ["quota", "429", "resource_exhausted", "too many requests"]):
+                                slot.mark_cooldown(seconds=60.0, reason=f"Quota exhausted: {e}")
+                                print(f"[LLM Fallback] [QUOTA EXHAUSTED] Gemini Key #{slot.index} ({slot.masked}) quota exhausted. Falling back to next API key immediately...")
+                                model_completed = True
+                                break  # Break to next slot
+
+                            # 3. Model not found/available on this account: try next candidate model
+                            elif any(k in err_str for k in ["404", "not found", "no longer available", "not supported for generatecontent"]):
+                                print(f"[LLM Trace] [MODEL UNAVAILABLE] Model {model_name} not available on Key #{slot.index}. Trying next model candidate...")
+                                model_completed = True
+                                break
+
+                            # 4. Service overloaded (503): cooldown model and try next model
+                            elif any(k in err_str for k in ["503", "unavailable", "high demand", "overloaded"]):
+                                self._model_cooldowns[model_name] = time.time() + 30.0
+                                print(f"[LLM RateLimiter] {model_name} overloaded. Rotating to next model candidate...")
+                                model_completed = True
+                                break
+
+                            elif is_rate_limit_or_temporary_error(e):
+                                backoff = (1.2 * (2 ** attempt)) + random.uniform(0.2, 0.5)
+                                print(f"[LLM RateLimiter] Transient blip on Key #{slot.index} ({model_name}). Retrying in {backoff:.2f}s...")
+                                time.sleep(backoff)
+                            else:
+                                print(f"[LLM Trace] Key #{slot.index} error on {model_name}: {e}. Trying fallback...")
+                                model_completed = True
+                                break
+
+                    # If this slot had an auth/quota failure, break out of models chain and proceed to next slot
+                    if slot.is_disabled or slot.cooldown_until > now_time:
+                        break
 
         # 2. Try OpenAI if available
         if self.openai_client is not None:
@@ -316,7 +403,7 @@ class LangChainRepairAgent:
 
         # 3. Resilient Target-Preserving Logical AST Refactoring Engine
         elapsed_ms = int((time.time() - t0) * 1000)
-        mode_reason = "No external API key in .env (offline mode)" if not (settings.gemini_api_key or settings.openai_api_key) else "Cloud API fallback"
+        mode_reason = "No external API key in .env (offline mode)" if not (settings.gemini_api_keys or settings.gemini_api_key or settings.openai_api_key) else "Cloud API fallback (all keys exhausted/errored)"
         print(f"[LLM Trace] <<< Completed via Deterministic AST Synthesis Engine ({elapsed_ms}ms) [{mode_reason}]")
         
         result = self._apply_deterministic_ast_repair(

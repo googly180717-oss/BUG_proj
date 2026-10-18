@@ -59,7 +59,10 @@ def get_system_status():
     status = db_manager.get_status()
     status["status"] = "online"
     status["db_mode"] = "MongoDB Atlas" if status.get("is_mongodb_connected") else "Local Hybrid Vector RAG"
-    status["llm_provider"] = "Google Gemini Agent" if settings.gemini_api_key else "In-Context Repair Agent"
+    has_gemini = bool(settings.gemini_api_keys or settings.gemini_api_key)
+    key_count = len(settings.gemini_api_keys)
+    status["llm_provider"] = f"Google Gemini Agent ({key_count} keys with fallback)" if has_gemini else "In-Context Repair Agent"
+    status["gemini_keys_count"] = key_count
     status["dataset_summary"] = delta_rag_engine.get_dataset_stats()
     return status
 
