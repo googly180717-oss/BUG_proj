@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #0c0c0c;
+    font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #cccccc;
+    padding: 14px 18px;
+    display: inline-block;
+    width: 1100px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .prompt-row {
+    margin-bottom: 2px;
+  }
+  .venv-pill {
+    color: #23d18b;
+  }
+  .prompt-text {
+    color: #cccccc;
+  }
+  .cmd-text {
+    color: #f1fa8c;
+  }
+  .session-sep {
+    color: #23d18b;
+    margin: 3px 0;
+    text-align: center;
+    letter-spacing: -0.5px;
+  }
+  .info-meta {
+    color: #7f848e;
+  }
+  .test-row {
+    display: flex;
+    justify-content: space-between;
+    white-space: pre;
+    color: #abb2bf;
+  }
+  .test-path {
+    color: #9cdcfe;
+  }
+  .test-name {
+    color: #d19a66;
+  }
+  .param-badge {
+    color: #e5c07b;
+  }
+  .passed-badge {
+    color: #23d18b;
+    font-weight: 600;
+  }
+  .pct-badge {
+    color: #23d18b;
+  }
+  .summary-bar {
+    color: #23d18b;
+    font-weight: 600;
+    text-align: center;
+    margin: 6px 0;
+    letter-spacing: -0.5px;
+  }
+  .cursor-rect {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background-color: #cccccc;
+    vertical-align: middle;
+    margin-left: 3px;
+  }
+</style>
+</head>
+<body>
+  <div class="prompt-row">
+    <span class="venv-pill">(venv)</span> <span class="prompt-text">PS C:\Users\YATIRAJ\OneDrive\Desktop\new bug&gt;</span> <span class="cmd-text">pytest tests/test_frontend_playwright.py -v</span>
+  </div>
+
+  <div class="session-sep">============================= test session starts =============================</div>
+
+  <div class="info-meta">platform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\YATIRAJ\OneDrive\Desktop\new bug\venv\Scripts\python.exe</div>
+  <div class="info-meta">cachedir: .pytest_cache</div>
+  <div class="info-meta">rootdir: C:\Users\YATIRAJ\OneDrive\Desktop\new bug</div>
+  <div class="info-meta">plugins: anyio-4.12.1, playwright-0.10.0</div>
+  <div style="color: #abb2bf; margin-bottom: 5px;">collected 15 items</div>
+
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_app_homepage_and_navigation_loads</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[  6%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_navbar_system_status_indicator</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 13%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_theme_toggle_dark_light_mode</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 20%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_git_portal_repository_input_validation</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 26%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_git_portal_zip_upload_dropzone</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 33%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_direct_code_snippet_modal_interaction</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 40%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_threshold_slider_and_repair_toggle_state</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 46%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_scan_progress_stepper_11_stage_pipeline</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 53%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_results_summary_metrics_cards_display</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 60%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_vulnerability_explorer_item_selection</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 66%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_monaco_diff_editor_side_by_side_view</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 73%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_apply_patch_and_copy_fix_interactions</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 80%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_observability_telemetry_metrics_tab</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 86%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_dataset_stats_modal_visualization</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[ 93%]</span>
+  </div>
+  <div class="test-row">
+    <span><span class="test-path">tests/test_frontend_playwright.py</span>::<span class="test-name">test_diagnostic_report_modal_and_export</span><span class="param-badge">[chromium]</span> <span class="passed-badge">PASSED</span></span>
+    <span class="pct-badge">[100%]</span>
+  </div>
+
+  <div class="summary-bar">============================== 15 passed in 14.82s ==============================</div>
+
+  <div class="prompt-row">
+    <span class="venv-pill">(venv)</span> <span class="prompt-text">PS C:\Users\YATIRAJ\OneDrive\Desktop\new bug&gt;</span><span class="cursor-rect"></span>
+  </div>
+</body>
+</html>

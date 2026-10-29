@@ -1,14 +1,20 @@
-.env
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Node
 node_modules/
 **/node_modules/
 dist/
 **/dist/
 *.timestamp-*.mjs
+
+# Temp & Editor
 temp_scans/
 .vscode/
-
 
 # Backup bundle
 git_backup.bundle

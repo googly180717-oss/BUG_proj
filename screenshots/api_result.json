@@ -1,0 +1,141 @@
+﻿{
+    "scan_id":  "0de15d60",
+    "status":  "COMPLETED",
+    "results":  {
+                    "scan_id":  "0de15d60",
+                    "scan_timestamp":  "2026-10-24T03:07:45.728582",
+                    "repository_url":  "voting.js",
+                    "status":  "COMPLETED",
+                    "project_metadata":  {
+                                             "name":  "voting.js",
+                                             "tech_stack":  "JavaScript / TypeScript",
+                                             "has_frontend":  false,
+                                             "has_backend":  false
+                                         },
+                    "files_scanned":  1,
+                    "methods_analyzed":  1,
+                    "clean_methods_filtered":  0,
+                    "api_cost_saved_usd":  0.0,
+                    "latency_ms":  66,
+                    "llm_model":  "gemini-2.5-flash-lite",
+                    "llm_provider":  "Google Gemini (Multi-Key Pool)",
+                    "llm_traces":  [
+                                       {
+                                           "status":  "ONLINE_SUCCESS",
+                                           "provider":  "Google Gemini",
+                                           "model":  "gemini-2.5-flash-lite",
+                                           "key_slot":  1,
+                                           "key_masked":  "AQ.Ab8...DOqA",
+                                           "latency_ms":  0,
+                                           "prompt_chars":  4903,
+                                           "target_file":  "voting.js",
+                                           "method_role":  "Application Business Logic",
+                                           "project":  "voting.js",
+                                           "pacing_delay_sec":  0.0,
+                                           "cache_hit":  true
+                                       }
+                                   ],
+                    "vulnerabilities":  [
+                                            {
+                                                "file_path":  "voting.js",
+                                                "method_name":  "vid",
+                                                "line_number_start":  1,
+                                                "line_number_end":  13,
+                                                "bug_type":  "Incorrect age comparison logic",
+                                                "severity_level":  "Major",
+                                                "explanation":  "The current logic in `checkEligibility` incorrectly identifies voters younger than 18 as eligible. The condition `age \u003c 18` should result in an \u0027ineligible\u0027 message, while `age \u003e= 18` should lead to eligibility. The current implementation has this logic inverted. The fix involves swapping the conditions to correctly identify eligible voters.",
+                                                "buggy_code_highlighted":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || !age || !vid) { return; }\n  if (age \u003c 18) {\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else {\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                "original_buggy_code":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || !age || !vid) { return; }\n  if (age \u003c 18) {\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else {\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                "suggested_fix_code":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || isNaN(age) || !vid) { return; } // Added isNaN check for age\n  if (age \u003e= 18) { // Corrected the condition to check for eligibility (age 18 or above)\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else { // If age is less than 18, they are not eligible\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                "matched_historical_commit":  "ecd89c8faf",
+                                                "matched_commit_message":  "fix(query-devtools/utils): scope the \u0027setupStyleSheet\u0027 dedup check to the target so a \u0027shadowDOMTarget\u0027 still receives its own \u0027#_goober\u0027 style tag when \u0027document.head\u0027 already has one (#10815)",
+                                                "delta_signature":  {
+                                                                        "added_await":  0,
+                                                                        "added_boundary_check":  0,
+                                                                        "delta_op_gt":  0,
+                                                                        "complexity_delta":  -6
+                                                                    },
+                                                "confidence_score":  0.88,
+                                                "llm_trace":  {
+                                                                  "status":  "ONLINE_SUCCESS",
+                                                                  "provider":  "Google Gemini",
+                                                                  "model":  "gemini-2.5-flash-lite",
+                                                                  "key_slot":  1,
+                                                                  "key_masked":  "AQ.Ab8...DOqA",
+                                                                  "latency_ms":  0,
+                                                                  "prompt_chars":  4903,
+                                                                  "target_file":  "voting.js",
+                                                                  "method_role":  "Application Business Logic",
+                                                                  "project":  "voting.js",
+                                                                  "pacing_delay_sec":  0.0,
+                                                                  "cache_hit":  true
+                                                              }
+                                            }
+                                        ],
+                    "files_tree":  [
+                                       {
+                                           "path":  "voting.js",
+                                           "is_buggy":  true,
+                                           "method_count":  1,
+                                           "raw_code":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || !age || !vid) { return; }\n  if (age \u003c 18) {\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else {\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                           "vulnerabilities":  [
+                                                                   {
+                                                                       "file_path":  "voting.js",
+                                                                       "method_name":  "vid",
+                                                                       "line_number_start":  1,
+                                                                       "line_number_end":  13,
+                                                                       "bug_type":  "Incorrect age comparison logic",
+                                                                       "severity_level":  "Major",
+                                                                       "explanation":  "The current logic in `checkEligibility` incorrectly identifies voters younger than 18 as eligible. The condition `age \u003c 18` should result in an \u0027ineligible\u0027 message, while `age \u003e= 18` should lead to eligibility. The current implementation has this logic inverted. The fix involves swapping the conditions to correctly identify eligible voters.",
+                                                                       "buggy_code_highlighted":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || !age || !vid) { return; }\n  if (age \u003c 18) {\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else {\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                                       "original_buggy_code":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || !age || !vid) { return; }\n  if (age \u003c 18) {\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else {\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                                       "suggested_fix_code":  "function checkEligibility() {\n  const name = document.getElementById(\u0027voterName\u0027).value.trim();\n  const age  = parseInt(document.getElementById(\u0027voterAge\u0027).value);\n  const vid  = document.getElementById(\u0027voterID\u0027).value.trim();\n  if (!name || isNaN(age) || !vid) { return; } // Added isNaN check for age\n  if (age \u003e= 18) { // Corrected the condition to check for eligibility (age 18 or above)\n    currentVoter = name;\n    showResult(\u0027Eligible to vote!\u0027, \u0027success\u0027);\n    openVotingPanel();\n  } else { // If age is less than 18, they are not eligible\n    showResult(\u0027Not Eligible. Voter must be above 18 years.\u0027, \u0027error\u0027);\n  }\n}",
+                                                                       "matched_historical_commit":  "ecd89c8faf",
+                                                                       "matched_commit_message":  "fix(query-devtools/utils): scope the \u0027setupStyleSheet\u0027 dedup check to the target so a \u0027shadowDOMTarget\u0027 still receives its own \u0027#_goober\u0027 style tag when \u0027document.head\u0027 already has one (#10815)",
+                                                                       "delta_signature":  {
+                                                                                               "added_await":  0,
+                                                                                               "added_boundary_check":  0,
+                                                                                               "delta_op_gt":  0,
+                                                                                               "complexity_delta":  -6
+                                                                                           },
+                                                                       "confidence_score":  0.88,
+                                                                       "llm_trace":  {
+                                                                                         "status":  "ONLINE_SUCCESS",
+                                                                                         "provider":  "Google Gemini",
+                                                                                         "model":  "gemini-2.5-flash-lite",
+                                                                                         "key_slot":  1,
+                                                                                         "key_masked":  "AQ.Ab8...DOqA",
+                                                                                         "latency_ms":  0,
+                                                                                         "prompt_chars":  4903,
+                                                                                         "target_file":  "voting.js",
+                                                                                         "method_role":  "Application Business Logic",
+                                                                                         "project":  "voting.js",
+                                                                                         "pacing_delay_sec":  0.0,
+                                                                                         "cache_hit":  true
+                                                                                     }
+                                                                   }
+                                                               ]
+                                       }
+                                   ],
+                    "observability_ledger":  [
+                                                 {
+                                                     "method_name":  "vid",
+                                                     "file_path":  "voting.js",
+                                                     "line_start":  1,
+                                                     "line_end":  13,
+                                                     "cyclomatic_complexity":  2,
+                                                     "ast_depth":  3,
+                                                     "similarity_score":  0.4701,
+                                                     "gatekeeper_verdict":  "SNIPPET VERIFICATION",
+                                                     "matched_historical_twin":  "ecd89c8faf",
+                                                     "cost_saved_usd":  0.0
+                                                 }
+                                             ],
+                    "ast_geometry_summary":  {
+                                                 "total_ast_nodes":  64,
+                                                 "average_complexity":  2.0,
+                                                 "max_ast_depth":  3
+                                             },
+                    "updated_at":  "2026-10-24T03:07:45.728597"
+                }
+}

@@ -22,7 +22,10 @@ export default function GitPortal({ onStartScan, isScanning, theme }) {
   const [threshold, setThreshold] = useState(0.50);
   const [suggestions, setSuggestions] = useState([]);
   const [error, setError] = useState('');
-  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('mode') === 'direct' || p.get('snippet') === '1';
+  });
 
   useEffect(() => {
     fetch('/api/dataset/suggestions')

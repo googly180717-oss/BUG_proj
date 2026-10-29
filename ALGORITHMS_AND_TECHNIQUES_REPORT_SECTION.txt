@@ -1,0 +1,88 @@
+5.2 Algorithms and Techniques
+
+AST Structural Slicing and Method Boundary Extraction Algorithm
+The AST Structural Slicing and Method Boundary Extraction Algorithm parses raw JavaScript and TypeScript source files into syntactic Abstract Syntax Trees (AST) using the Babel parser. Rather than treating code as plain textual strings or token sequences, the algorithm isolates discrete function and method declarations (FunctionDeclaration, FunctionExpression, ArrowFunctionExpression, and ClassMethod) while filtering out syntactic noise, comments, and non-functional boilerplate. It extracts clean method boundaries along with their precise line numbers, identifiers, parameters, and localized scope to enable granular downstream vectorization and analysis.
+
+Pseudo Code:
+Step 1: Accept source code files (.js, .jsx, .ts, .tsx) collected from the cloned repository or user snippet.
+Step 2: Initialize the Babel AST parser with ECMAScript, JSX, and TypeScript syntax plugins enabled.
+Step 3: Parse the source file content into an Abstract Syntax Tree (AST) hierarchical representation.
+Step 4: Traverse the AST nodes using depth-first tree traversal to detect functional method boundaries.
+Step 5: Identify and extract method constructs, including FunctionDeclarations, ArrowFunctionExpressions, and ClassMethods.
+Step 6: Record the metadata for each extracted function, including file path, method name, start line, end line, and parameter list.
+Step 7: Filter out non-functional trivia, external license comments, and empty declarations.
+Step 8: Slice the monolithic source code into standalone, independent method-level code blocks.
+Step 9: Validate the syntactical integrity of each sliced function chunk.
+Step 10: Output the collection of sliced method objects for feature extraction and vectorization.
+
+
+120-Dimensional AST Geometric Vectorization Algorithm
+The 120-Dimensional AST Geometric Vectorization Algorithm converts sliced method-level AST nodes into dense mathematical feature vectors representing local tree geometry and semantic structure. The algorithm quantifies AST node type distributions, control-flow statements, branching depth, loop constructs, promise/async handlers, null-safety checks, and operator frequencies. It computes static structural metrics, including Cyclomatic Complexity, token counts, and identifier ratios, and maps these attributes into a 120-dimensional feature space. The resulting vector is normalized using Euclidean L2-norm to enable scale-invariant geometric similarity comparison.
+
+Pseudo Code:
+Step 1: Ingest an isolated method AST node and its corresponding code snippet.
+Step 2: Initialize a 120-dimensional zero-filled feature vector V.
+Step 3: Traverse the method subtree and count occurrences of core AST node types (CallExpression, BinaryExpression, MemberExpression, Identifier, ReturnStatement).
+Step 4: Compute control-flow and branching density (IfStatement, SwitchCase, ConditionalExpression, LogicalExpression).
+Step 5: Measure loop and iteration patterns (ForStatement, WhileStatement, DoWhileStatement, ForInStatement, ForOfStatement).
+Step 6: Quantify asynchronous handling and error-handling structures (AwaitExpression, TryStatement, CatchClause, ThrowStatement).
+Step 7: Calculate static complexity metrics, including Cyclomatic Complexity, maximum AST tree depth, and total statement count.
+Step 8: Encode operator transformation indicators (comparison operators, strict equality, nullish coalescing, optional chaining).
+Step 9: Populate the 120 feature slots with the extracted AST topological frequencies and complexity metrics.
+Step 10: Apply L2-norm vector normalization (V_norm = V / ||V||_2) and return the 120-dimensional normalized geometric embedding.
+
+
+Comparison-Based Delta-RAG Error Mining & Gatekeeper Algorithm
+The Comparison-Based Delta-RAG Error Mining and Gatekeeper Algorithm shifts bug detection from traditional keyword heuristics to geometric similarity search across a curated dataset of 3,179 historical bug-fix commit pairs (6,358 code snippets). It computes the cosine similarity between the query code's 120-dimensional AST vector and the pre-computed historical bug vectors stored in the vector database. A dynamic Confidence Gatekeeper threshold (tau = 0.50 default) evaluates the resulting similarity score: low-similarity functions are immediately designated as Clean Code ($0.00 LLM inference cost), whereas high-similarity matches are flagged as suspicious, triggering the retrieval of the historical fix's Delta Signature (Transformation DNA).
+
+Pseudo Code:
+Step 1: Receive the 120-dimensional normalized query vector V_query and user-configured sensitivity threshold tau (default 0.50).
+Step 2: Query the vector database (MongoDB Atlas Vector Store / Local Pre-computed Vector Index) containing 3,179 historical bug-fix commit pairs.
+Step 3: Calculate the cosine similarity score S_C between V_query and each historical bug vector V_hist: S_C = (V_query . V_hist) / (||V_query|| * ||V_hist||).
+Step 4: Rank the historical bug matches in descending order of cosine similarity score.
+Step 5: Retrieve the top-K nearest historical neighbors and identify the maximum similarity score S_max.
+Step 6: Evaluate S_max against the Confidence Gatekeeper threshold: IF S_max < tau:
+    a. Mark the method as Clean / Low Risk.
+    b. Bypass generative LLM processing to achieve zero unnecessary API token cost ($0.00 cost).
+    c. Terminate detection for this method and proceed to the next method.
+Step 7: ELSE IF S_max >= tau:
+    a. Flag the method as Suspicious / Candidate Defect.
+    b. Extract the matching historical "Before Commit" (Buggy Code) and "After Commit" (Fixed Code).
+    c. Extract the pre-computed Delta Signature representing the structural Transformation DNA (e.g., added boundary check, null guard, inverted operator).
+Step 8: Construct the evidence package containing the user code, matching historical commit pair, Delta Signature, and similarity confidence score.
+Step 9: Transmit the evidence package to the In-Context Generative Program Repair Agent.
+
+
+Few-Shot In-Context LLM Automated Program Repair & AST Verification Algorithm
+The Few-Shot In-Context LLM Automated Program Repair and AST Verification Algorithm synthesizes targeted, verifiable patches for detected code defects using generative AI agents (Google Gemini / OpenAI). By providing the model with the suspicious code, the historical buggy snippet, the historical repair commit, and the structural Delta Signature, the algorithm guides the LLM to follow proven transformation patterns rather than generating unconstrained code. Upon patch generation, the algorithm executes an automated AST syntax re-parse to guarantee syntactic validity and prevent runtime hallucination. Finally, it computes a side-by-side diff comparing the original and repaired code for developer inspection in Monaco Editor.
+
+Pseudo Code:
+Step 1: Receive the evidence package containing the suspicious user function, historical commit pair, and Delta Signature.
+Step 2: Formulate a structured Few-Shot In-Context Prompt specifying the target function, detected bug category, and historical fix transformation blueprint.
+Step 3: Enforce strict prompt constraints: maintain existing function signatures, retain healthy surrounding logic, and modify only the defective AST construct.
+Step 4: Dispatch the prompt to the Generative LLM Repair Agent (Google Gemini 1.5/2.0 API with automatic multi-key rotation and OpenAI fallback).
+Step 5: Receive the synthesized candidate repair patch code from the LLM agent.
+Step 6: Pass the synthesized code to the Babel AST parser to verify syntax correctness:
+    a. IF parsing fails due to syntax errors: trigger an automated re-prompt with the parser syntax error trace for self-healing repair.
+    b. IF parsing succeeds: confirm structural AST validity.
+Step 7: Compute a line-by-line unified diff between the original buggy code and the validated repair patch.
+Step 8: Annotate modified, inserted, and deleted AST nodes with severity rankings and human-readable explanations.
+Step 9: Package the repair patch, unified diff, confidence score, and token telemetry metrics into a standardized JSON response.
+Step 10: Deliver the repair artifact to the frontend Vulnerability Explorer for side-by-side Monaco diff inspection and one-click patch application.
+
+
+Overall BugIdentifier System Workflow
+The Overall BugIdentifier System Workflow describes the end-to-end multi-stage pipeline coordinating repository ingestion, structural AST parsing, Delta-RAG error mining, LLM patch synthesis, and interactive reporting. The system processes project source trees asynchronously and streams real-time progress across 11 discrete stages to the web application. Developers inspect detected vulnerabilities, review side-by-side Monaco code diffs, evaluate system observability metrics, and apply verified patches with a single click.
+
+Pseudo Code:
+Step 1: Initialize the BugIdentifier platform and verify backend API and database connectivity status.
+Step 2: Provide input through the GitPortal by entering a GitHub repository URL, uploading a project ZIP archive, or pasting a direct code snippet.
+Step 3: Configure scan options, including the Delta-RAG sensitivity threshold slider (0.0 to 1.0) and auto-repair toggle.
+Step 4: Initiate the 11-step analysis pipeline and establish a Server-Sent Events (SSE) telemetry connection to stream real-time progress logs.
+Step 5: Clone or extract the repository files into an isolated workspace and filter relevant JavaScript and TypeScript source files.
+Step 6: Invoke the AST Structural Slicing Algorithm to extract independent method-level code blocks.
+Step 7: Execute the 120-Dimensional AST Geometric Vectorization Algorithm to compute normalized topological embeddings for each function.
+Step 8: Execute the Comparison-Based Delta-RAG Error Mining Algorithm against the 3,179 bug-fix commit database to identify defective functions and filter clean code.
+Step 9: For each detected defect, execute the Few-Shot In-Context LLM Repair and AST Verification Algorithm to generate verifiable patches and unified diffs.
+Step 10: Aggregate scan telemetry, including total files scanned, functions analyzed, bugs detected, repair success rate, and estimated LLM cost savings.
+Step 11: Present the results on the interactive dashboard across three tabs: Executive Summary (Tab 1), Vulnerability Explorer & Monaco Diff Viewer (Tab 2), and Telemetry & Observability Metrics (Tab 3). Allow the developer to apply patches or download the diagnostic report.

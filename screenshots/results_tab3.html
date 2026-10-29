@@ -1,0 +1,802 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BugIdentifier â€” Scan Results Â· voting.js</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* â”€â”€ Exact CSS variables from your index.css â”€â”€ */
+:root, [data-theme="dark"] {
+  --bg-canvas:            #090a0f;
+  --bg-header:            #0d0e15;
+  --bg-surface:           #12141c;
+  --bg-surface-elevated:  #181b26;
+  --bg-surface-hover:     #1e2230;
+  --bg-subtle:            #0d0f17;
+  --bg-card:              #12141c;
+  --border-subtle:        #1e2330;
+  --border-medium:        #2c3345;
+  --border-strong:        #3d465d;
+  --text-primary:         #f8fafc;
+  --text-secondary:       #94a3b8;
+  --text-muted:           #64748b;
+  --accent-btn-bg:        #e2e8f0;
+  --accent-btn-text:      #090a0f;
+  --accent-btn-hover:     #ffffff;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* â”€â”€ ui-card exactly as your .ui-card â”€â”€ */
+.ui-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.ui-panel {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.375rem;
+}
+
+/* â”€â”€ Scrollbar â”€â”€ */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background: var(--bg-canvas); }
+::-webkit-scrollbar-thumb { background: #232838; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background: #383f56; }
+
+/* â”€â”€ Navbar (exact match) â”€â”€ */
+.navbar {
+  position: sticky; top:0; z-index:40;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-header);
+  backdrop-filter: blur(12px);
+}
+.navbar-inner {
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.nav-logo { display:flex; align-items:center; gap:12px; }
+.nav-logo-icon {
+  padding: 6px; border-radius:8px;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-surface-elevated);
+  display:flex; align-items:center; justify-content:center;
+}
+.nav-logo-icon svg { width:16px; height:16px; color: var(--text-primary); }
+.nav-brand { font-size:0.875rem; font-weight:600; color: var(--text-primary); letter-spacing:-0.02em; }
+.nav-version { font-size:0.75rem; color: var(--text-muted); font-family: var(--font-mono); }
+.nav-right { display:flex; align-items:center; gap:10px; font-size:0.75rem; }
+.nav-pill {
+  display:flex; align-items:center; gap:6px;
+  padding:4px 10px; border-radius:6px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary); font-weight:500;
+}
+.nav-pill.online {
+  background: rgba(16,185,129,.08);
+  border-color: rgba(16,185,129,.3);
+  color: #34d399;
+}
+.nav-pill svg { width:14px; height:14px; }
+.theme-switcher {
+  display:flex; align-items:center;
+  padding:2px; border-radius:8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+}
+.theme-btn {
+  display:flex; align-items:center; gap:4px;
+  padding: 4px 10px; border-radius:6px;
+  font-size:0.75rem; font-weight:500; cursor:pointer;
+  border:none; background:transparent; color: var(--text-muted);
+}
+.theme-btn.active {
+  background: var(--accent-btn-bg);
+  color: var(--accent-btn-text);
+  box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
+/* â”€â”€ Main Layout â”€â”€ */
+main {
+  max-width: 1280px; margin:0 auto;
+  padding: 24px 2rem 60px;
+}
+
+/* â”€â”€ Tab Bar (exact match from App.jsx results view) â”€â”€ */
+.tab-bar {
+  display:flex; flex-direction:row; align-items:center;
+  justify-content: space-between; gap:12px;
+  padding:12px; margin-bottom:16px;
+}
+.tab-group {
+  display:flex; align-items:center; gap:2px;
+  background: var(--bg-subtle); padding:4px;
+  border-radius:6px; border:1px solid var(--border-subtle);
+  font-size:0.75rem;
+}
+.tab-btn {
+  display:flex; align-items:center; gap:6px;
+  padding: 6px 12px; border-radius:5px;
+  font-weight:500; cursor:pointer; border:none;
+  background:transparent; color: var(--text-secondary);
+  transition: all .15s ease;
+  font-size:0.75rem; font-family: var(--font-sans);
+}
+.tab-btn.active {
+  background: var(--accent-btn-bg);
+  color: var(--accent-btn-text);
+  box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.tab-btn svg { width:14px; height:14px; }
+.new-scan-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 6px 12px; border-radius:6px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary); font-size:0.75rem; font-weight:500;
+  cursor:pointer; transition: background .15s;
+  font-family: var(--font-sans);
+}
+.new-scan-btn:hover { background: var(--bg-surface-hover); }
+.new-scan-btn svg { width:14px; height:14px; color: var(--text-muted); }
+
+/* â”€â”€ SUMMARY TAB â”€â”€ */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Executive Banner */
+.exec-banner {
+  padding:20px; margin-bottom:12px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  flex-wrap: wrap;
+}
+.exec-banner h2 { font-size:1.25rem; font-weight:700; margin-top:4px; }
+.exec-banner p { font-size:0.75rem; color: var(--text-secondary); margin-top:4px; }
+.exec-label { font-size:0.7rem; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; color: var(--text-muted); }
+.action-btns { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+.btn-secondary {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 6px 12px; border-radius:6px;
+  background: var(--bg-surface-elevated); border:1px solid var(--border-subtle);
+  color: var(--text-primary); font-size:0.75rem; font-weight:500;
+  cursor:pointer; font-family: var(--font-sans);
+}
+.btn-primary-sm {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 6px 14px; border-radius:6px;
+  background: var(--accent-btn-bg); color: var(--accent-btn-text);
+  font-size:0.75rem; font-weight:500; cursor:pointer;
+  border:none; font-family: var(--font-sans);
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display:grid; grid-template-columns: repeat(4,1fr); gap:12px;
+  margin-bottom:16px;
+}
+.metric-card { padding:16px; border-radius:6px; }
+.metric-card.grade-b {
+  border: 1px solid rgba(245,158,11,.3);
+  background: rgba(245,158,11,.08);
+}
+.metric-card-inner { display:flex; align-items:center; justify-content:space-between; }
+.metric-label { font-size:0.75rem; color: var(--text-secondary); font-weight:500; }
+.metric-val { font-size:1.5rem; font-weight:700; font-family: var(--font-mono); margin-top:4px; }
+.metric-sub { font-size:0.68rem; color: var(--text-muted); margin-top:2px; }
+.metric-sub.green { color:#34d399; display:flex; align-items:center; gap:4px; }
+.metric-grade-box {
+  width:40px; height:40px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700; font-size:1.1rem;
+  background: var(--bg-surface); border:1px solid var(--border-subtle);
+}
+
+/* Two-col findings */
+.findings-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+  align-items:start;
+}
+.panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:12px; margin-bottom:16px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.panel-title { font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:8px; }
+.panel-sub { font-size:0.75rem; color: var(--text-secondary); margin-top:2px; }
+.inspect-link {
+  font-size:0.75rem; font-weight:500; color: var(--text-primary);
+  display:flex; align-items:center; gap:4px; cursor:pointer;
+  background:none; border:none; font-family: var(--font-sans);
+}
+.inspect-link:hover { text-decoration:underline; }
+
+/* Vuln row */
+.vuln-row {
+  padding:14px; border-radius:6px;
+  background: var(--bg-subtle); border:1px solid var(--border-subtle);
+  margin-bottom:10px;
+}
+.vuln-row:hover { border-color: var(--border-medium); }
+.vuln-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.vuln-left { display:flex; align-items:center; gap:8px; }
+.severity-badge {
+  font-size:0.65rem; padding:2px 8px; border-radius:4px; font-weight:600;
+}
+.sev-major { background:rgba(245,158,11,.1); color:#fbbf24; border:1px solid rgba(245,158,11,.3); }
+.sev-critical { background:rgba(239,68,68,.1); color:#f87171; border:1px solid rgba(239,68,68,.3); }
+.vuln-type { font-size:0.75rem; font-weight:600; }
+.vuln-lines { font-size:0.68rem; font-family: var(--font-mono); color: var(--text-muted); }
+.vuln-explanation { font-size:0.75rem; color: var(--text-secondary); line-height:1.6; margin-bottom:10px; }
+.vuln-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:8px; border-top:1px solid var(--border-subtle);
+  font-size:0.68rem;
+}
+.vuln-meta { font-family: var(--font-mono); color: var(--text-muted); }
+.view-diff-btn {
+  display:flex; align-items:center; gap:4px;
+  font-size:0.68rem; font-weight:500; color: var(--text-primary);
+  cursor:pointer; background:none; border:none;
+  font-family: var(--font-sans);
+}
+.view-diff-btn:hover { text-decoration:underline; }
+
+/* Recommendations */
+.reco-item {
+  padding:14px; border-radius:6px;
+  background: var(--bg-subtle); border:1px solid var(--border-subtle);
+  margin-bottom:10px;
+}
+.reco-title { display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:600; margin-bottom:6px; }
+.reco-num {
+  width:20px; height:20px; border-radius:4px;
+  background: var(--bg-surface-elevated); border:1px solid var(--border-subtle);
+  color: var(--text-secondary); font-size:0.65rem;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.reco-text { font-size:0.75rem; color: var(--text-secondary); line-height:1.6; padding-left:28px; }
+.reco-text code { font-family: var(--font-mono); color: var(--text-primary); }
+.cta-btn {
+  width:100%; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px; border-radius:6px; margin-top:12px;
+  background: var(--accent-btn-bg); color: var(--accent-btn-text);
+  font-size:0.75rem; font-weight:600; cursor:pointer; border:none;
+  font-family: var(--font-sans);
+}
+
+/* â”€â”€ ISSUES TAB (Code Diff) â”€â”€ */
+.issue-layout { display:grid; grid-template-columns: 260px 1fr; gap:16px; align-items:start; }
+.issue-list-panel { padding:16px; }
+.issue-list-title { font-size:0.7rem; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; color: var(--text-muted); padding-bottom:10px;
+  margin-bottom:12px; border-bottom:1px solid var(--border-subtle); }
+.issue-item {
+  padding:12px; border-radius:6px; cursor:pointer; margin-bottom:6px;
+  border:1px solid var(--border-subtle); background: var(--bg-subtle);
+}
+.issue-item.selected { border-color: var(--border-medium); background: var(--bg-surface-elevated); }
+.issue-item-type { font-size:0.72rem; font-weight:600; margin-bottom:3px; }
+.issue-item-file { font-size:0.68rem; font-family: var(--font-mono); color: var(--text-muted); }
+
+.diff-panel { padding:20px; }
+.diff-header { margin-bottom:16px; }
+.diff-badge-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.diff-title { font-size:1rem; font-weight:700; margin-bottom:6px; }
+.diff-loc { font-size:0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-bottom:12px; }
+.diff-explanation {
+  font-size:0.8rem; color: var(--text-secondary); line-height:1.7;
+  background: var(--bg-subtle); border:1px solid var(--border-subtle);
+  border-radius:6px; padding:12px; margin-bottom:20px;
+}
+.diff-explanation code { font-family: var(--font-mono); color: var(--text-primary); }
+
+.diff-label { font-size:0.7rem; font-weight:600; text-transform:uppercase;
+  letter-spacing:.06em; color: var(--text-muted); margin-bottom:10px;
+  display:flex; align-items:center; gap:8px; }
+.diff-label::after { content:''; flex:1; height:1px; background: var(--border-subtle); }
+
+.diff-cols { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.diff-col { border-radius:6px; overflow:hidden; border:1px solid var(--border-subtle); }
+.diff-col-head {
+  padding:8px 14px; font-size:0.7rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+.diff-col-head.buggy { background:rgba(239,68,68,.1); color:#f87171; border-bottom:1px solid rgba(239,68,68,.3); }
+.diff-col-head.fixed { background:rgba(16,185,129,.08); color:#34d399; border-bottom:1px solid rgba(16,185,129,.25); }
+.diff-col pre {
+  background:#090a0f; padding:14px 16px;
+  font-family: var(--font-mono); font-size:0.78rem; line-height:1.8;
+  overflow-x:auto; margin:0;
+}
+.hl-del { background:rgba(239,68,68,.18); border-left:3px solid #ef4444; display:block; margin:0 -16px; padding:0 16px 0 13px; }
+.hl-add { background:rgba(16,185,129,.14); border-left:3px solid #10b981; display:block; margin:0 -16px; padding:0 16px 0 13px; }
+.kw  { color:#f472b6; }
+.fn  { color:#c084fc; }
+.cm  { color:#64748b; font-style:italic; }
+.str { color:#7dd3fc; }
+.num { color:#67e8f9; }
+
+.confidence-row {
+  display:flex; align-items:center; gap:12px;
+  padding:14px; border-radius:6px;
+  background: var(--bg-subtle); border:1px solid var(--border-subtle);
+  margin-bottom:16px; flex-wrap:wrap;
+}
+.conf-label { font-size:0.75rem; font-weight:600; }
+.conf-bar-wrap { flex:1; min-width:200px; }
+.conf-bar-bg { background: var(--bg-surface); height:8px; border-radius:4px;
+  overflow:hidden; border:1px solid var(--border-subtle); }
+.conf-bar-fill { height:100%; background:linear-gradient(90deg,#059669,#34d399); border-radius:4px; }
+.conf-pct { font-size:0.875rem; font-weight:800; color:#34d399; font-family: var(--font-mono); }
+.matched-twin { font-size:0.68rem; color: var(--text-muted); font-family: var(--font-mono); }
+
+.apply-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 20px; border-radius:6px;
+  background: var(--accent-btn-bg); color: var(--accent-btn-text);
+  font-size:0.8rem; font-weight:600; cursor:pointer; border:none;
+  font-family: var(--font-sans);
+}
+.apply-btn:hover { background: var(--accent-btn-hover); }
+
+/* â”€â”€ TELEMETRY TAB â”€â”€ */
+.tele-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+.tele-card { padding:16px; display:flex; align-items:center; gap:12px; }
+.tele-icon {
+  padding:8px; border-radius:6px;
+  background: var(--bg-subtle); border:1px solid var(--border-subtle);
+  color: var(--text-secondary); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.tele-icon svg { width:16px; height:16px; }
+.tele-val { font-size:1.5rem; font-weight:700; font-family: var(--font-mono); }
+.tele-lbl { font-size:0.72rem; color: var(--text-muted); margin-top:2px; }
+
+.tele-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.tele-panel { padding:16px; }
+.tele-section-title {
+  display:flex; align-items:center; gap:8px;
+  font-size:0.875rem; font-weight:600;
+  padding-bottom:10px; margin-bottom:14px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.tele-section-title svg { width:16px; height:16px; color: var(--text-muted); }
+.bar-row { margin-bottom:12px; }
+.bar-label-row { display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px; }
+.bar-bg { background: var(--bg-subtle); border:1px solid var(--border-subtle); border-radius:20px; height:8px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:20px; }
+.bar-amber { background:#f59e0b; }
+.bar-red { background:#ef4444; }
+.bar-slate { background:#64748b; }
+
+.meta-row { display:flex; justify-content:space-between; align-items:center;
+  font-size:0.75rem; padding:6px 0; border-bottom:1px solid rgba(30,35,48,.5); }
+.meta-row:last-child { border-bottom:none; }
+.meta-key { color: var(--text-muted); }
+.meta-val { font-family: var(--font-mono); color: var(--text-primary); font-weight:500; }
+.meta-val.green { color:#34d399; font-weight:600; }
+
+/* â”€â”€ Inline SVG Icons â”€â”€ */
+svg { display:inline-block; vertical-align:middle; }
+</style>
+</head>
+<body>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• NAVBAR (exact match) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<header class="navbar">
+  <div class="navbar-inner">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">
+        <!-- Bug icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:var(--text-primary)">
+          <path d="M8 2l1.88 1.88M14.12 3.88 16 2M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/>
+          <path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/>
+          <path d="M12 20v-9M6.53 9C4.6 8.8 3 7.1 3 5M6 13H2M3 21c0-2.1 1.7-3.9 3.8-4M20.97 5c0 2.1-1.6 3.8-3.5 4M22 13h-4M17.2 17c2.1.1 3.8 1.9 3.8 4"/>
+        </svg>
+      </div>
+      <span class="nav-brand">BugIdentifier</span>
+      <span class="nav-version">v2.0</span>
+    </div>
+
+    <div class="nav-right">
+      <!-- Gateway status -->
+      <div class="nav-pill online">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+        Gateway Online
+      </div>
+      <!-- Storage -->
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+        Local Hybrid Vector RAG
+      </div>
+      <!-- LLM -->
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Google Gemini Agent (3 keys)
+      </div>
+      <!-- Theme switcher -->
+      <div class="theme-switcher">
+        <button class="theme-btn active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          Dark
+        </button>
+        <button class="theme-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Silver
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<main>
+
+  <!-- Tab bar (exact match from App.jsx results view) -->
+  <div class="ui-card tab-bar">
+    <div class="tab-group">
+      <button class="tab-btn active" onclick="switchTab('summary',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Summary &amp; Improvements
+      </button>
+      <button class="tab-btn" onclick="switchTab('issues',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Issues &amp; Code Diff (1)
+      </button>
+      <button class="tab-btn" onclick="switchTab('telemetry',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Telemetry &amp; Metrics
+      </button>
+    </div>
+    <button class="new-scan-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      New Scan
+    </button>
+  </div>
+
+  <!-- â•â•â• TAB 1: SUMMARY â•â•â• -->
+  <div id="tab-summary" class="tab-content active">
+
+    <!-- Executive Banner -->
+    <div class="ui-card exec-banner" style="margin-bottom:12px">
+      <div>
+        <div class="exec-label">Executive Scan Report</div>
+        <h2>Summary &amp; Engineering Improvements</h2>
+        <p>Overview of codebase quality, defect patterns, and actionable architectural recommendations.</p>
+      </div>
+      <div class="action-btns">
+        <button class="btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;color:var(--text-muted)"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Summary
+        </button>
+        <button class="btn-primary-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="metrics-grid" style="margin-bottom:16px">
+      <!-- Grade B card -->
+      <div class="metric-card grade-b">
+        <div class="metric-card-inner">
+          <div>
+            <div class="metric-label">Code Health Grade</div>
+            <div class="metric-val" style="color:#fbbf24">Grade B</div>
+            <div class="metric-sub">85/100 Quality Score</div>
+          </div>
+          <div class="metric-grade-box" style="color:#fbbf24">B</div>
+        </div>
+      </div>
+      <!-- Files -->
+      <div class="ui-card metric-card">
+        <div class="metric-label">Files Analyzed</div>
+        <div class="metric-val">1</div>
+        <div class="metric-sub green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          0 files clean (0 defects)
+        </div>
+      </div>
+      <!-- Total Defects -->
+      <div class="ui-card metric-card">
+        <div class="metric-label">Total Defects Identified</div>
+        <div class="metric-val">1</div>
+        <div class="metric-sub">0 Critical â€¢ 1 Major â€¢ 0 Minor</div>
+      </div>
+      <!-- Patches -->
+      <div class="ui-card metric-card">
+        <div class="metric-label">Automated Patches Ready</div>
+        <div class="metric-val">1</div>
+        <div class="metric-sub">Ready for 1-click review &amp; apply</div>
+      </div>
+    </div>
+
+    <!-- Findings + Recommendations -->
+    <div class="findings-grid">
+      <!-- Left: Findings -->
+      <div class="ui-card" style="padding:20px">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" style="width:16px;height:16px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Detected Defect Findings
+            </div>
+            <div class="panel-sub">Summary of flagged methods with proposed fixes</div>
+          </div>
+          <button class="inspect-link" onclick="switchTab('issues', document.querySelectorAll('.tab-btn')[1])">
+            Inspect Diffs
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+        <!-- Single vuln row -->
+        <div class="vuln-row">
+          <div class="vuln-top">
+            <div class="vuln-left">
+              <span class="severity-badge sev-major">MAJOR</span>
+              <span class="vuln-type">Incorrect Age Comparison Logic</span>
+            </div>
+            <span class="vuln-lines">Lines 1â€“13</span>
+          </div>
+          <p class="vuln-explanation">
+            The current logic in <code style="font-family:var(--font-mono);color:var(--text-primary)">checkEligibility()</code> incorrectly identifies voters younger than 18 as eligible. The condition <code style="font-family:var(--font-mono);color:#f87171">age &lt; 18</code> should result in an ineligible message, while <code style="font-family:var(--font-mono);color:#34d399">age &gt;= 18</code> should lead to eligibility.
+          </p>
+          <div class="vuln-footer">
+            <span class="vuln-meta">voting.js â€¢ <span style="color:var(--text-primary)">checkEligibility()</span></span>
+            <button class="view-diff-btn" onclick="switchTab('issues', document.querySelectorAll('.tab-btn')[1])">
+              View Diff
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Recommendations -->
+      <div class="ui-card" style="padding:20px">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-secondary)"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg>
+              Recommended Engineering Improvements
+            </div>
+            <div class="panel-sub">Best practices to prevent similar defects in future releases</div>
+          </div>
+        </div>
+        <div class="reco-item">
+          <div class="reco-title"><div class="reco-num">1</div> Defensive Boundary &amp; Null Checks</div>
+          <p class="reco-text">Validate all comparison conditions carefully. Use <code>isNaN()</code> guard for numeric inputs and test boundary values explicitly (e.g. age = 18, 17, 19).</p>
+        </div>
+        <div class="reco-item">
+          <div class="reco-title"><div class="reco-num">2</div> Async / Await Flow Handling</div>
+          <p class="reco-text">Always <code>await</code> asynchronous calls and encapsulate in <code>try/catch</code> to prevent silent promise rejections and unhandled errors.</p>
+        </div>
+        <div class="reco-item">
+          <div class="reco-title"><div class="reco-num">3</div> Strict State Immutability</div>
+          <p class="reco-text">Never mutate state directly (e.g. <code>array.sort()</code> in-place). Create shallow or deep copies before executing mutating operations.</p>
+        </div>
+        <div class="reco-item">
+          <div class="reco-title"><div class="reco-num">4</div> Automated Static Analysis in CI/CD</div>
+          <p class="reco-text">Integrate automated AST scanning and linter rules in your GitHub Actions pipeline to catch defects prior to merging pull requests.</p>
+        </div>
+        <button class="cta-btn" onclick="switchTab('issues', document.querySelectorAll('.tab-btn')[1])">
+          Go to Code Review &amp; Apply Patches
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- â•â•â• TAB 2: ISSUES & CODE DIFF â•â•â• -->
+  <div id="tab-issues" class="tab-content">
+    <div class="issue-layout">
+      <!-- Left sidebar: issue list -->
+      <div class="ui-card issue-list-panel">
+        <div class="issue-list-title">1 Issue Found</div>
+        <div class="issue-item selected">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <span class="severity-badge sev-major">MAJOR</span>
+          </div>
+          <div class="issue-item-type">Incorrect Age Comparison Logic</div>
+          <div class="issue-item-file">voting.js Â· lines 1â€“13</div>
+        </div>
+      </div>
+
+      <!-- Right: diff view -->
+      <div class="ui-card diff-panel">
+        <div class="diff-header">
+          <div class="diff-badge-row">
+            <span class="severity-badge sev-major">MAJOR</span>
+            <span style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.2);color:#7dd3fc;font-family:var(--font-mono)">voting.js</span>
+            <span style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:var(--bg-subtle);border:1px solid var(--border-subtle);color:var(--text-muted);font-family:var(--font-mono)">Lines 1â€“13</span>
+          </div>
+          <div class="diff-title">Incorrect Age Comparison Logic</div>
+          <div class="diff-loc">Method: checkEligibility() Â· Confidence: 88%</div>
+        </div>
+
+        <!-- Confidence bar -->
+        <div class="confidence-row">
+          <span class="conf-label">Confidence Score</span>
+          <div class="conf-bar-wrap">
+            <div class="conf-bar-bg">
+              <div class="conf-bar-fill" style="width:88%"></div>
+            </div>
+          </div>
+          <span class="conf-pct">88%</span>
+          <span class="matched-twin">Matched: ecd89c8faf</span>
+        </div>
+
+        <!-- Explanation -->
+        <div class="diff-explanation">
+          The current logic in <code>checkEligibility()</code> incorrectly identifies voters younger than 18 as eligible.
+          The condition <code style="color:#f87171">age &lt; 18</code> should result in an <em>ineligible</em> message,
+          while <code style="color:#34d399">age &gt;= 18</code> should lead to eligibility.
+          The current implementation has this logic <strong>inverted</strong>.
+          The fix involves changing <code style="color:#f87171">age &lt; 18</code> to <code style="color:#34d399">age &gt;= 18</code>
+          to correctly enforce the voting age restriction.
+        </div>
+
+        <!-- Code Diff -->
+        <div class="diff-label">Code Diff â€” Buggy vs Fixed</div>
+        <div class="diff-cols">
+          <div class="diff-col">
+            <div class="diff-col-head buggy">âŒ Buggy Code (Current)</div>
+            <pre><span class="kw">function</span> <span class="fn">checkEligibility</span>() {
+  <span class="kw">const</span> age = parseInt(voterAge.value);
+  <span class="kw">const</span> name = voterName.value.trim();
+
+  <span class="cm">// âŒ Wrong operator â€” minors pass!</span>
+  <span class="hl-del"><span class="kw">if</span> (age &lt; <span style="color:#fca5a5;font-weight:700">18</span>) {</span>
+    currentVoter = name;
+    showResult(<span class="str">'Eligible!'</span>, <span class="str">'success'</span>);
+    openVotingPanel();
+  } <span class="kw">else</span> {
+    showResult(<span class="str">'Not Eligible'</span>, <span class="str">'error'</span>);
+  }
+}</pre>
+          </div>
+          <div class="diff-col">
+            <div class="diff-col-head fixed">âœ… Suggested Fix</div>
+            <pre><span class="kw">function</span> <span class="fn">checkEligibility</span>() {
+  <span class="kw">const</span> age = parseInt(voterAge.value);
+  <span class="kw">const</span> name = voterName.value.trim();
+
+  <span class="cm">// âœ… Correct â€” 18+ are eligible</span>
+  <span class="hl-add"><span class="kw">if</span> (age &gt;= <span style="color:#6ee7b7;font-weight:700">18</span>) {</span>
+    currentVoter = name;
+    showResult(<span class="str">'Eligible!'</span>, <span class="str">'success'</span>);
+    openVotingPanel();
+  } <span class="kw">else</span> {
+    showResult(<span class="str">'Not Eligible'</span>, <span class="str">'error'</span>);
+  }
+}</pre>
+          </div>
+        </div>
+
+        <button class="apply-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          Apply Patch to Branch
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- â•â•â• TAB 3: TELEMETRY â•â•â• -->
+  <div id="tab-telemetry" class="tab-content">
+    <!-- Top metric cards -->
+    <div class="tele-metrics">
+      <div class="ui-card tele-card">
+        <div class="tele-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        </div>
+        <div>
+          <div class="tele-val">1</div>
+          <div class="tele-lbl">Files Scanned</div>
+        </div>
+      </div>
+      <div class="ui-card tele-card">
+        <div class="tele-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="tele-val">1</div>
+          <div class="tele-lbl">Functions Analyzed</div>
+        </div>
+      </div>
+      <div class="ui-card tele-card">
+        <div class="tele-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2l1.88 1.88M14.12 3.88 16 2M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/></svg>
+        </div>
+        <div>
+          <div class="tele-val">1</div>
+          <div class="tele-lbl">Bugs Detected</div>
+        </div>
+      </div>
+      <div class="ui-card tele-card">
+        <div class="tele-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <div class="tele-val">0</div>
+          <div class="tele-lbl">Clean Functions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-col: Severity + Scan Metadata -->
+    <div class="tele-grid">
+      <!-- Severity Breakdown -->
+      <div class="ui-card tele-panel">
+        <div class="tele-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Severity Breakdown
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span style="color:var(--text-primary);font-weight:500;font-size:0.75rem">Critical</span><span style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem">0 issues</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-red" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span style="color:var(--text-primary);font-weight:500;font-size:0.75rem">Major</span><span style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem">1 issue</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-amber" style="width:100%"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label-row"><span style="color:var(--text-primary);font-weight:500;font-size:0.75rem">Minor</span><span style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.75rem">0 issues</span></div>
+          <div class="bar-bg"><div class="bar-fill bar-slate" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Scan Metadata -->
+      <div class="ui-card tele-panel">
+        <div class="tele-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Scan Telemetry Metadata
+        </div>
+        <div class="meta-row"><span class="meta-key">Scan ID</span><span class="meta-val">0de15d60</span></div>
+        <div class="meta-row"><span class="meta-key">File</span><span class="meta-val">voting.js</span></div>
+        <div class="meta-row"><span class="meta-key">LLM Provider</span><span class="meta-val">Google Gemini</span></div>
+        <div class="meta-row"><span class="meta-key">Model</span><span class="meta-val">gemini-2.5-flash-lite</span></div>
+        <div class="meta-row"><span class="meta-key">LLM Status</span><span class="meta-val green">ONLINE_SUCCESS</span></div>
+        <div class="meta-row"><span class="meta-key">LLM Latency</span><span class="meta-val">2,439 ms</span></div>
+        <div class="meta-row"><span class="meta-key">Total Latency</span><span class="meta-val">66 ms</span></div>
+        <div class="meta-row"><span class="meta-key">Prompt Size</span><span class="meta-val">4,903 chars</span></div>
+        <div class="meta-row"><span class="meta-key">Cache Hit</span><span class="meta-val green">True</span></div>
+        <div class="meta-row"><span class="meta-key">RAG Similarity</span><span class="meta-val">0.47</span></div>
+        <div class="meta-row"><span class="meta-key">Matched Commit</span><span class="meta-val">ecd89c8faf</span></div>
+        <div class="meta-row"><span class="meta-key">Gatekeeper</span><span class="meta-val green">SNIPPET VERIFIED</span></div>
+        <div class="meta-row"><span class="meta-key">API Cost Saved</span><span class="meta-val">$0.00</span></div>
+        <div class="meta-row"><span class="meta-key">Timestamp</span><span class="meta-val">2026-10-24 08:37:45</span></div>
+        <div class="meta-row"><span class="meta-key">AST Nodes</span><span class="meta-val">64</span></div>
+        <div class="meta-row"><span class="meta-key">Avg Complexity</span><span class="meta-val">2.0</span></div>
+        <div class="meta-row"><span class="meta-key">Max AST Depth</span><span class="meta-val">3</span></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function switchTab(tabId, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+switchTab('telemetry', document.querySelectorAll('.tab-btn')[2]);</script>
+</body>
+</html>
+

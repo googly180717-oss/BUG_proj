@@ -3,7 +3,29 @@ import { X, Play, Terminal, Code2 } from 'lucide-react';
 
 const SAMPLE_SNIPPETS = [
   {
+    name: "Voting App (Age Eligibility Bug)",
+    fileName: "voting.js",
+    code: `// ---- VOTING ELIGIBILITY CHECK ----
+function checkEligibility(voterName, voterAge, voterID) {
+  if (!voterName || !voterAge || !voterID) {
+    return { eligible: false, message: "Please fill in all fields." };
+  }
+  if (isNaN(voterAge) || voterAge < 1 || voterAge > 120) {
+    return { eligible: false, message: "Please enter a valid age." };
+  }
+
+  // BUG: Inverted condition - minors (< 18) are marked eligible!
+  // Correct requirement: age >= 18
+  if (voterAge < 18) {
+    return { eligible: true, message: \`Eligible! Welcome \${voterName}.\` };
+  } else {
+    return { eligible: false, message: \`Not eligible. Must be above 18. Age: \${voterAge}\` };
+  }
+}`
+  },
+  {
     name: "Redux State Mutation",
+    fileName: "Blogs.jsx",
     code: `const Blogs = () => {
   const posts = useSelector((state) => state.postsReducer);
   const dispatch = useDispatch();
@@ -28,6 +50,7 @@ const SAMPLE_SNIPPETS = [
   },
   {
     name: "Async Token Handling",
+    fileName: "auth.js",
     code: `async function fetchUserProfile(userId) {
   const response = fetch('/api/user/' + userId);
   const data = response.json();
@@ -39,6 +62,7 @@ const SAMPLE_SNIPPETS = [
   },
   {
     name: "Boundary Array Slice",
+    fileName: "rankings.js",
     code: `function getTopRankings(scores, limit) {
   return scores.sort((a, b) => b.score - a.score).slice(0, limit);
 }`
@@ -47,7 +71,7 @@ const SAMPLE_SNIPPETS = [
 
 export default function DirectCodeModal({ isOpen, onClose, onRunDirectScan }) {
   const [code, setCode] = useState(SAMPLE_SNIPPETS[0].code);
-  const [fileName, setFileName] = useState('Blogs.jsx');
+  const [fileName, setFileName] = useState(SAMPLE_SNIPPETS[0].fileName || 'voting.js');
 
   if (!isOpen) return null;
 
@@ -93,7 +117,10 @@ export default function DirectCodeModal({ isOpen, onClose, onRunDirectScan }) {
             {SAMPLE_SNIPPETS.map((s, idx) => (
               <button
                 key={idx}
-                onClick={() => setCode(s.code)}
+                onClick={() => {
+                  setCode(s.code);
+                  if (s.fileName) setFileName(s.fileName);
+                }}
                 className="px-2.5 py-1 rounded-md bg-[var(--bg-subtle)] hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-medium transition-all whitespace-nowrap cursor-pointer"
               >
                 {s.name}

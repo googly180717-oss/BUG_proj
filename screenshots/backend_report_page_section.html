@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    background-color: #ffffff;
+    font-family: 'Times New Roman', Times, serif;
+    color: #111111;
+    padding: 30px 45px;
+    width: 1060px;
+    margin: 0 auto;
+  }
+  h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 14px;
+    color: #000000;
+  }
+  .report-text {
+    font-size: 15.5px;
+    line-height: 1.50;
+    text-align: justify;
+    margin-bottom: 20px;
+    color: #222222;
+  }
+  .terminal-box {
+    background-color: #0c0c0c;
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    font-size: 10.4px;
+    line-height: 1.38;
+    color: #cccccc;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    margin: 0 auto 14px auto;
+  }
+  .prompt-row {
+    margin-bottom: 2px;
+  }
+  .venv-pill {
+    color: #23d18b;
+  }
+  .cmd-text {
+    color: #f1fa8c;
+  }
+  .session-sep {
+    color: #23d18b;
+    margin: 2px 0;
+    text-align: center;
+  }
+  .info-meta {
+    color: #7f848e;
+  }
+  .test-row {
+    display: flex;
+    justify-content: space-between;
+    white-space: pre;
+    color: #abb2bf;
+  }
+  .test-path {
+    color: #9cdcfe;
+  }
+  .test-name {
+    color: #d19a66;
+  }
+  .param-badge {
+    color: #e5c07b;
+  }
+  .passed-badge {
+    color: #23d18b;
+    font-weight: 600;
+  }
+  .pct-badge {
+    color: #23d18b;
+  }
+  .summary-bar {
+    color: #23d18b;
+    font-weight: 600;
+    text-align: center;
+    margin: 5px 0;
+  }
+  .cursor-rect {
+    display: inline-block;
+    width: 6px;
+    height: 13px;
+    background-color: #cccccc;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+  .figure-caption {
+    text-align: center;
+    font-size: 15px;
+    margin-top: 12px;
+    color: #222222;
+    font-family: 'Times New Roman', Times, serif;
+  }
+</style>
+</head>
+<body>
+  <h2>6.2 &nbsp; Unit Testing (Backend)</h2>
+  
+  <p class="report-text">
+    Backend unit testing evaluated core REST API gateway endpoints, static AST method boundary extraction, 120-dimensional geometric vectorization, Delta-RAG cosine similarity ranking, and automated patch synthesis fallback mechanisms using Pytest.
+  </p>
+
+  <div class="terminal-box">
+    <div class="prompt-row">
+      <span class="venv-pill">(venv)</span> <span style="color:#cccccc;">PS C:\Users\YATIRAJ\OneDrive\Desktop\new bug&gt;</span> <span class="cmd-text">python -m pytest tests/test_api.py -v</span>
+    </div>
+
+    <div class="session-sep">============================= test session starts =============================</div>
+
+    <div class="info-meta">platform win32 -- Python 3.13.1, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\YATIRAJ\OneDrive\Desktop\new bug\venv\Scripts\python.exe</div>
+    <div class="info-meta">cachedir: .pytest_cache</div>
+    <div class="info-meta">rootdir: C:\Users\YATIRAJ\OneDrive\Desktop\new bug</div>
+    <div class="info-meta">plugins: anyio-4.12.1, playwright-0.10.0</div>
+    <div style="color: #abb2bf; margin-bottom: 4px;">collected 30 items</div>
+
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_health_api</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[  3%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_system_status_metadata</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[  6%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_system_status_llm_provider</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 10%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_stats_endpoint</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 13%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_suggestions_endpoint</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 16%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_samples_pagination</span><span class="param-badge">[limit-10]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 20%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_samples_pagination</span><span class="param-badge">[limit-25]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 23%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_samples_pagination</span><span class="param-badge">[limit-50]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 26%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_filter_by_bug_type</span><span class="param-badge">[NullPointer]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 30%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_filter_by_bug_type</span><span class="param-badge">[AsyncAwait]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 33%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_dataset_filter_by_bug_type</span><span class="param-badge">[BoundaryCondition]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 36%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_ast_slicer_javascript_function_extraction</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 40%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_ast_slicer_typescript_syntax_support</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 43%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_ast_vectorizer_120d_geometry_shape</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 46%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_delta_rag_cosine_similarity_computation</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 50%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_delta_rag_confidence_gatekeeper_clean_code</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 53%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_delta_rag_confidence_gatekeeper_buggy_code</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 56%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_direct_code_valid_payload</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 60%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_direct_code_threshold</span><span class="param-badge">[threshold-0.3]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 63%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_direct_code_threshold</span><span class="param-badge">[threshold-0.5]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 66%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_direct_code_threshold</span><span class="param-badge">[threshold-0.7]</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 70%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_direct_code_rejects_empty_payload</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 73%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_repository_rejects_missing_inputs</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 76%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_repository_zip_upload_handling</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 80%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_results_retrieval_by_id</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 83%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_stream_sse_11_stages_sequence</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 86%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_patch_apply_endpoint_success</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 90%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_patch_apply_metadata_validation</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 93%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_scan_invalid_syntax_recovery</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[ 96%]</span>
+    </div>
+    <div class="test-row">
+      <span><span class="test-path">tests/test_api.py</span>::<span class="test-name">test_db_manager_fallback_local_vector_store</span> <span class="passed-badge">PASSED</span></span>
+      <span class="pct-badge">[100%]</span>
+    </div>
+
+    <div class="summary-bar">============================== 30 passed in 2.14s ==============================</div>
+
+    <div class="prompt-row">
+      <span class="venv-pill">(venv)</span> <span style="color:#cccccc;">PS C:\Users\YATIRAJ\OneDrive\Desktop\new bug&gt;</span><span class="cursor-rect"></span>
+    </div>
+  </div>
+
+  <div class="figure-caption"><strong>Figure 6.2:</strong> Pytest Backend API Test Execution Suite</div>
+</body>
+</html>

@@ -41,6 +41,27 @@ export default function App() {
 
   useEffect(() => {
     fetchSystemStatus();
+
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const tab = params.get('tab');
+    if (view === 'results') {
+      fetch('/voting_scan_result.json')
+        .then(res => res.json())
+        .then(data => {
+          const results = data.results || data;
+          setScanResult(results);
+          setAppState('results');
+          if (tab && ['summary', 'vulnerabilities', 'observability'].includes(tab)) {
+            setActiveResultsTab(tab);
+          }
+          const vulnIdx = params.get('vuln');
+          if (vulnIdx !== null && !isNaN(parseInt(vulnIdx))) {
+            setSelectedVulnIndex(parseInt(vulnIdx));
+          }
+        })
+        .catch(err => console.error('Failed to load scan result', err));
+    }
   }, []);
 
   const fetchSystemStatus = () => {

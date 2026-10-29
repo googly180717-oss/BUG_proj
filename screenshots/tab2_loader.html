@@ -1,0 +1,18 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+<script>
+window.onload = function() {
+  // Load the main page in an iframe and click the issues tab
+  var f = document.createElement('iframe');
+  f.src = 'results_page.html';
+  f.style = 'width:1440px;height:950px;border:none;position:absolute;top:0;left:0';
+  document.body.appendChild(f);
+  f.onload = function() {
+    try {
+      var tabs = f.contentDocument.querySelectorAll('.tab-btn');
+      if (tabs[1]) tabs[1].click();
+    } catch(e){}
+  };
+};
+</script>
+<style>*{margin:0;padding:0;}html,body{width:1440px;height:950px;overflow:hidden;}</style>
+</head><body></body></html>
